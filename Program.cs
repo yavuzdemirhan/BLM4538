@@ -1,4 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using MotoRota.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+// Veritabaný baðlantýsýný appsettings.json'dan çekip DbContext'e veriyoruz
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 

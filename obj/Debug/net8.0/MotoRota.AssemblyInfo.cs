@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MotoRota")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b97e4835310c62e109fba2daceec3e5ad4e1b938")]
 [assembly: System.Reflection.AssemblyProductAttribute("MotoRota")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MotoRota")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
