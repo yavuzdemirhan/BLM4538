@@ -279,3 +279,4 @@ C:\Users\Yavuz\source\repos\MotoRota\obj\Debug\net8.0\refint\MotoRota.dll
 C:\Users\Yavuz\source\repos\MotoRota\obj\Debug\net8.0\MotoRota.pdb
 C:\Users\Yavuz\source\repos\MotoRota\obj\Debug\net8.0\MotoRota.genruntimeconfig.cache
 C:\Users\Yavuz\source\repos\MotoRota\obj\Debug\net8.0\ref\MotoRota.dll
+C:\Users\Yavuz\source\repos\MotoRota\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
