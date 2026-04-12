@@ -3,28 +3,60 @@
   "WorkspaceRootPath": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\tourscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\tourscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\tour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\tour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\participationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\participationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\notificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\emergencycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\emergencycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\favoritescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\favoritescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\followscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\followscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\ratingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\ratingscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\commentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\commentscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\routestopcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\routestopcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\motorota.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:motorota.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\controllers\\garagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:controllers\\garagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\tourrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\tourrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -33,54 +65,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\emergencyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\emergencyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\comment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\comment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\userfollow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\userfollow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\tourrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\tourrating.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\tour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\tour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\routestop.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\routestop.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\participation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\participation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\notification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\notification.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\motorcycle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\motorcycle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\models\\favorite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:models\\favorite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|c:\\users\\yavuz\\source\\repos\\motorota\\migrations\\20260328181036_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AEA5D3A0-DE74-49AA-9CFC-D9A3BF665259}|MotoRota.csproj|solutionrelative:migrations\\20260328181036_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -90,134 +74,131 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACUAAABFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T18:03:57.346Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "RegisterDto.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\RegisterDto.cs",
-              "RelativeDocumentMoniker": "Models\\DTOs\\RegisterDto.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\RegisterDto.cs",
-              "RelativeToolTip": "Models\\DTOs\\RegisterDto.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-05T19:53:59.287Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "GarageController.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\GarageController.cs",
-              "RelativeDocumentMoniker": "Controllers\\GarageController.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\GarageController.cs",
-              "RelativeToolTip": "Controllers\\GarageController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACMAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-05T19:57:53.794Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAFAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-23T13:55:08.881Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "AccountController.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\AccountController.cs",
-              "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\AccountController.cs",
-              "RelativeToolTip": "Controllers\\AccountController.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-05T19:57:38.607Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MotoRota.csproj",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\MotoRota.csproj",
-              "RelativeDocumentMoniker": "MotoRota.csproj",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\MotoRota.csproj",
-              "RelativeToolTip": "MotoRota.csproj",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-03-23T13:55:18.754Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "20260328181036_InitialCreate.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Migrations\\20260328181036_InitialCreate.cs",
-              "RelativeDocumentMoniker": "Migrations\\20260328181036_InitialCreate.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Migrations\\20260328181036_InitialCreate.cs",
-              "RelativeToolTip": "Migrations\\20260328181036_InitialCreate.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAcAAAAWAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T18:10:37.048Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "LoginDto.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\LoginDto.cs",
-              "RelativeDocumentMoniker": "Models\\DTOs\\LoginDto.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\LoginDto.cs",
-              "RelativeToolTip": "Models\\DTOs\\LoginDto.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-05T19:54:11.899Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "RouteStop.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\RouteStop.cs",
-              "RelativeDocumentMoniker": "Models\\RouteStop.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\RouteStop.cs",
-              "RelativeToolTip": "Models\\RouteStop.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:58:18.603Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
               "Title": "Tour.cs",
               "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Tour.cs",
               "RelativeDocumentMoniker": "Models\\Tour.cs",
               "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Tour.cs",
               "RelativeToolTip": "Models\\Tour.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAvAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:58:12.333Z"
+              "WhenOpened": "2026-04-12T17:30:07.539Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NotificationsController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\NotificationsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\NotificationsController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\NotificationsController.cs",
+              "RelativeToolTip": "Controllers\\NotificationsController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAADEAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:23:19.891Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "EmergencyController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\EmergencyController.cs",
+              "RelativeDocumentMoniker": "Controllers\\EmergencyController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\EmergencyController.cs",
+              "RelativeToolTip": "Controllers\\EmergencyController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACkAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:23:15.023Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "FavoritesController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\FavoritesController.cs",
+              "RelativeDocumentMoniker": "Controllers\\FavoritesController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\FavoritesController.cs",
+              "RelativeToolTip": "Controllers\\FavoritesController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACcAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:23:10.267Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "FollowsController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\FollowsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\FollowsController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\FollowsController.cs",
+              "RelativeToolTip": "Controllers\\FollowsController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAC8AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:23:04.986Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ParticipationsController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\ParticipationsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ParticipationsController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\ParticipationsController.cs",
+              "RelativeToolTip": "Controllers\\ParticipationsController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAEAAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:22:59.352Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "CommentsController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\CommentsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CommentsController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\CommentsController.cs",
+              "RelativeToolTip": "Controllers\\CommentsController.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAmwEgAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:22:12.242Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "RouteStopController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\RouteStopController.cs",
+              "RelativeDocumentMoniker": "Controllers\\RouteStopController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\RouteStopController.cs",
+              "RelativeToolTip": "Controllers\\RouteStopController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:22:41.132Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "RatingsController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\RatingsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\RatingsController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\RatingsController.cs",
+              "RelativeToolTip": "Controllers\\RatingsController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACQAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:22:40.547Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ToursController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\ToursController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ToursController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\ToursController.cs",
+              "RelativeToolTip": "Controllers\\ToursController.cs",
+              "ViewState": "AQIAABwAAAAAAAAAAAAswCsAAABKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-12T17:22:30.645Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -227,119 +208,69 @@
               "RelativeDocumentMoniker": "Models\\TourRating.cs",
               "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\TourRating.cs",
               "RelativeToolTip": "Models\\TourRating.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAoAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:55:44.725Z"
+              "WhenOpened": "2026-04-12T17:15:49.525Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 11,
-              "Title": "UserFollow.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\UserFollow.cs",
-              "RelativeDocumentMoniker": "Models\\UserFollow.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\UserFollow.cs",
-              "RelativeToolTip": "Models\\UserFollow.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAA1AAAA",
+              "Title": "GarageController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\GarageController.cs",
+              "RelativeDocumentMoniker": "Controllers\\GarageController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\GarageController.cs",
+              "RelativeToolTip": "Controllers\\GarageController.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABoAAAA7AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:58:44.057Z"
+              "WhenOpened": "2026-04-05T20:41:39.2Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Data\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "Data\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Data\\ApplicationDbContext.cs",
-              "RelativeToolTip": "Data\\ApplicationDbContext.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAqwBIAAAAxAAAA",
+              "DocumentIndex": 14,
+              "Title": "RegisterDto.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\RegisterDto.cs",
+              "RelativeDocumentMoniker": "Models\\DTOs\\RegisterDto.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\RegisterDto.cs",
+              "RelativeToolTip": "Models\\DTOs\\RegisterDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T18:03:31.947Z"
+              "WhenOpened": "2026-04-05T20:39:58.096Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 15,
-              "Title": "Participation.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Participation.cs",
-              "RelativeDocumentMoniker": "Models\\Participation.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Participation.cs",
-              "RelativeToolTip": "Models\\Participation.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAABAAAA",
+              "Title": "LoginDto.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\LoginDto.cs",
+              "RelativeDocumentMoniker": "Models\\DTOs\\LoginDto.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\DTOs\\LoginDto.cs",
+              "RelativeToolTip": "Models\\DTOs\\LoginDto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAALAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:56:26.033Z"
+              "WhenOpened": "2026-04-05T20:39:45.193Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "Motorcycle.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Motorcycle.cs",
-              "RelativeDocumentMoniker": "Models\\Motorcycle.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Motorcycle.cs",
-              "RelativeToolTip": "Models\\Motorcycle.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAlAAAA",
+              "DocumentIndex": 10,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "Controllers\\AccountController.cs",
+              "ViewState": "AQIAADUAAAAAAAAAAAAwwFUAAAA+AAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:58:48.618Z"
+              "WhenOpened": "2026-04-05T20:39:27.309Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "Favorite.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Favorite.cs",
-              "RelativeDocumentMoniker": "Models\\Favorite.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Favorite.cs",
-              "RelativeToolTip": "Models\\Favorite.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAOAAAA",
+              "DocumentIndex": 13,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAABIAAAAAAAAAAAAAADUAAAAaAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:58:38.455Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "EmergencyInfo.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\EmergencyInfo.cs",
-              "RelativeDocumentMoniker": "Models\\EmergencyInfo.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\EmergencyInfo.cs",
-              "RelativeToolTip": "Models\\EmergencyInfo.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAApAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:58:06.333Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Comment.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Comment.cs",
-              "RelativeDocumentMoniker": "Models\\Comment.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Comment.cs",
-              "RelativeToolTip": "Models\\Comment.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:58:25.451Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "ApplicationUser.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\ApplicationUser.cs",
-              "RelativeDocumentMoniker": "Models\\ApplicationUser.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\ApplicationUser.cs",
-              "RelativeToolTip": "Models\\ApplicationUser.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:54:55.334Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "Notification.cs",
-              "DocumentMoniker": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Notification.cs",
-              "RelativeDocumentMoniker": "Models\\Notification.cs",
-              "ToolTip": "C:\\Users\\Yavuz\\source\\repos\\MotoRota\\Models\\Notification.cs",
-              "RelativeToolTip": "Models\\Notification.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAA/AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:56:40.329Z"
+              "WhenOpened": "2026-04-05T20:38:24.64Z"
             }
           ]
         }
