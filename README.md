@@ -4,3 +4,4 @@ Video Linkleri:
 2. HAFTA: https://youtu.be/MQL1oA2VRdM
 3. HAFTA: https://youtu.be/GX4W0Zq2N50
 4. HAFTA: https://youtu.be/hwP0tBkbfIs
+5. HAFTA: https://youtu.be/8TmB2_nBI90
