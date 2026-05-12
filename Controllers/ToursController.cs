@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MotoRota.Data;
@@ -32,6 +32,15 @@ namespace MotoRota.Controllers
         {
             var tour = await _context.Tours.FindAsync(id);
             if (tour == null) return NotFound("Böyle bir tur bulunamadı.");
+
+            // Görüntülenme sayısını artır
+            tour.ViewCount++;
+            await _context.SaveChangesAsync();
+
+            // Ortalama puanı hesapla
+            var ratings = await _context.TourRatings.Where(r => r.TourId == id).ToListAsync();
+            if (ratings.Any()) tour.AverageRating = ratings.Average(r => r.Score);
+
             return tour;
         }
 

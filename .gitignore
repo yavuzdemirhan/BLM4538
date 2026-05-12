@@ -1,0 +1,46 @@
+# .NET Build Outputs
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+*.dll
+*.pdb
+*.exe
+!MotoRotaApp/**/*.exe
+
+# React Native / Node
+MotoRotaApp/node_modules/
+MotoRotaApp/.expo/
+MotoRotaApp/.bundle/
+
+# Android Build
+MotoRotaApp/android/app/build/
+MotoRotaApp/android/build/
+MotoRotaApp/android/.gradle/
+MotoRotaApp/android/local.properties
+MotoRotaApp/android/app/.cxx/
+
+# iOS Build
+MotoRotaApp/ios/build/
+MotoRotaApp/ios/Pods/
+MotoRotaApp/ios/*.xcworkspace/xcuserdata/
+
+# Metro
+MotoRotaApp/.metro-health-check*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
