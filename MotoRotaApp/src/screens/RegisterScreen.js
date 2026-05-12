@@ -1,0 +1,409 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    SafeAreaView,
+    KeyboardAvoidingView,
+    Platform,
+    Alert,
+    ActivityIndicator,
+    ScrollView,
+    Animated,
+    StatusBar,
+} from 'react-native';
+import { authAPI } from '../services/api';
+
+const COLORS = {
+    bg: '#0A0A0F',
+    surface: '#13131A',
+    surfaceHigh: '#1C1C28',
+    border: '#1E1E2E',
+    orange: '#FF6B35',
+    textPrimary: '#F0F0F5',
+    textSecondary: '#8585A0',
+    textMuted: '#3A3A55',
+    success: '#22C55E',
+    error: '#EF4444',
+};
+
+// Şifre güç hesaplayıcı
+function getPasswordStrength(pass) {
+    if (!pass) return { level: 0, label: '', color: COLORS.border };
+    if (pass.length < 6) return { level: 1, label: 'Zayıf', color: COLORS.error };
+    if (pass.length < 10) return { level: 2, label: 'Orta', color: '#F59E0B' };
+    return { level: 3, label: 'Güçlü', color: COLORS.success };
+}
+
+function InputField({ label, placeholder, value, onChangeText, secureTextEntry, keyboardType, autoCapitalize, icon }) {
+    const [showPassword, setShowPassword] = useState(false);
+    const borderAnim = useRef(new Animated.Value(0)).current;
+
+    const handleFocus = () =>
+        Animated.timing(borderAnim, { toValue: 1, duration: 200, useNativeDriver: false }).start();
+    const handleBlur = () =>
+        Animated.timing(borderAnim, { toValue: 0, duration: 200, useNativeDriver: false }).start();
+
+    const borderColor = borderAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [COLORS.border, COLORS.orange],
+    });
+
+    const isPassword = secureTextEntry === true;
+
+    return (
+        <View style={styles.inputGroup}>
+            <Text style={styles.label}>{label}</Text>
+            <Animated.View style={[styles.inputWrapper, { borderColor }]}>
+                <Text style={styles.inputIcon}>{icon}</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder={placeholder}
+                    placeholderTextColor={COLORS.textMuted}
+                    value={value}
+                    onChangeText={onChangeText}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    secureTextEntry={isPassword && !showPassword}
+                    keyboardType={keyboardType || 'default'}
+                    autoCapitalize={autoCapitalize || 'sentences'}
+                />
+                {isPassword && (
+                    <TouchableOpacity
+                        onPress={() => setShowPassword(v => !v)}
+                        style={styles.eyeButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <Text style={styles.eyeIcon}>
+                            {showPassword ? '\uD83D\uDE48' : '\uD83D\uDC41\uFE0F'}
+                        </Text>
+                    </TouchableOpacity>
+                )}
+            </Animated.View>
+        </View>
+    );
+}
+
+function PasswordStrengthBar({ password }) {
+    const strength = getPasswordStrength(password);
+    if (!password) return null;
+
+    return (
+        <View style={styles.strengthContainer}>
+            <View style={styles.strengthBars}>
+                {[1, 2, 3].map(i => (
+                    <View
+                        key={i}
+                        style={[
+                            styles.strengthBar,
+                            {
+                                backgroundColor:
+                                    i <= strength.level ? strength.color : COLORS.border,
+                            },
+                        ]}
+                    />
+                ))}
+            </View>
+            <Text style={[styles.strengthLabel, { color: strength.color }]}>
+                {strength.label}
+            </Text>
+        </View>
+    );
+}
+
+export default function RegisterScreen({ navigation }) {
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(30)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+            Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
+        ]).start();
+    }, []);
+
+    const validate = () => {
+        if (!username.trim()) {
+            Alert.alert('Eksik Bilgi', 'Sürücü adını girmelisin.'); return false;
+        }
+        if (username.trim().length < 3) {
+            Alert.alert('Geçersiz Ad', 'Sürücü adı en az 3 karakter olmalı.'); return false;
+        }
+        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRe.test(email.trim())) {
+            Alert.alert('Geçersiz E-posta', 'Lütfen geçerli bir e-posta adresi gir.'); return false;
+        }
+        if (password.length < 6) {
+            Alert.alert('Zayıf Şifre', 'Şifre en az 6 karakter olmalı.'); return false;
+        }
+        return true;
+    };
+
+    const handleRegister = async () => {
+        if (!validate()) return;
+
+        setIsLoading(true);
+        try {
+            await authAPI.register(username.trim(), email.trim(), password);
+            Alert.alert(
+                'Ekibe Katıldın! \uD83C\uDF89',
+                'Hesabın oluşturuldu. Şimdi giriş yapabilirsin.',
+                [{ text: 'Giriş Yap', onPress: () => navigation.navigate('Login') }]
+            );
+        } catch (error) {
+            const errors = error.response?.data;
+            let msg = 'Kayıt işlemi başarısız. Bilgilerini kontrol et.';
+            if (errors && typeof errors === 'object') {
+                const firstErr = Object.values(errors).flat()[0];
+                if (firstErr) msg = firstErr;
+            } else if (error.response?.data?.message) {
+                msg = error.response.data.message;
+            }
+            Alert.alert('Kayıt Başarısız', msg);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <StatusBar barStyle="light-content" backgroundColor={COLORS.bg} />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{ flex: 1 }}
+            >
+                <ScrollView
+                    contentContainerStyle={styles.scrollContainer}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                        <Text style={styles.backIcon}>{'\u2190'}</Text>
+                    </TouchableOpacity>
+
+                    <Animated.View
+                        style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
+                    >
+                        {/* Header */}
+                        <View style={styles.headerContainer}>
+                            <View style={styles.iconBadge}>
+                                <Text style={styles.iconBadgeText}>{'\uD83C\uDFCD\uFE0F'}</Text>
+                            </View>
+                            <Text style={styles.headerTitle}>Yeni Sürücü</Text>
+                            <Text style={styles.headerSubtitle}>
+                                Topluluğa katıl, rotalarını keşfet
+                            </Text>
+                        </View>
+
+                        {/* Form */}
+                        <View style={styles.formCard}>
+                            <InputField
+                                label="SÜRÜCÜ ADI"
+                                placeholder="Ör: GhostRider99"
+                                value={username}
+                                onChangeText={setUsername}
+                                autoCapitalize="none"
+                                icon={'\uD83D\uDC64'}
+                            />
+                            <InputField
+                                label="E-POSTA"
+                                placeholder="sürücü@email.com"
+                                value={email}
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                icon={'\uD83D\uDCE7'}
+                            />
+                            <InputField
+                                label="ŞİFRE"
+                                placeholder="En az 6 karakter"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry={true}
+                                autoCapitalize="none"
+                                icon={'\uD83D\uDD12'}
+                            />
+
+                            {/* Şifre güç göstergesi */}
+                            <PasswordStrengthBar password={password} />
+
+                            <TouchableOpacity
+                                style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
+                                onPress={handleRegister}
+                                disabled={isLoading}
+                                activeOpacity={0.85}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color="#FFFFFF" size="small" />
+                                ) : (
+                                    <Text style={styles.submitButtonText}>Hesap Oluştur</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
+
+                        <View style={styles.footerRow}>
+                            <Text style={styles.footerText}>Zaten üye misin?</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                                <Text style={styles.footerLink}>{'  Giriş Yap'}</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Animated.View>
+                </ScrollView>
+            </KeyboardAvoidingView>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: COLORS.bg },
+    scrollContainer: {
+        flexGrow: 1,
+        paddingHorizontal: 24,
+        paddingBottom: 48,
+        paddingTop: 16,
+    },
+    backButton: {
+        width: 44,
+        height: 44,
+        backgroundColor: COLORS.surface,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    backIcon: {
+        color: COLORS.textPrimary,
+        fontSize: 20,
+        lineHeight: 22,
+    },
+    headerContainer: {
+        alignItems: 'center',
+        marginBottom: 36,
+    },
+    iconBadge: {
+        width: 72,
+        height: 72,
+        backgroundColor: COLORS.surface,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+        shadowColor: COLORS.orange,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 4,
+    },
+    iconBadgeText: { fontSize: 32 },
+    headerTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: COLORS.textPrimary,
+        letterSpacing: -0.8,
+        marginBottom: 8,
+    },
+    headerSubtitle: {
+        fontSize: 15,
+        color: COLORS.textSecondary,
+        textAlign: 'center',
+    },
+    formCard: {
+        backgroundColor: COLORS.surface,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+        padding: 24,
+        marginBottom: 24,
+    },
+    inputGroup: { marginBottom: 20 },
+    label: {
+        color: COLORS.textSecondary,
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 1.2,
+        marginBottom: 8,
+    },
+    inputWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.surfaceHigh,
+        borderRadius: 14,
+        borderWidth: 1.5,
+        paddingHorizontal: 14,
+    },
+    inputIcon: { fontSize: 16, marginRight: 10 },
+    input: {
+        flex: 1,
+        color: COLORS.textPrimary,
+        fontSize: 15,
+        paddingVertical: 14,
+    },
+    eyeButton: { paddingLeft: 8 },
+    eyeIcon: { fontSize: 18 },
+    strengthContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: -8,
+        marginBottom: 16,
+        gap: 10,
+    },
+    strengthBars: {
+        flexDirection: 'row',
+        gap: 4,
+        flex: 1,
+    },
+    strengthBar: {
+        flex: 1,
+        height: 3,
+        borderRadius: 2,
+    },
+    strengthLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 0.5,
+    },
+    submitButton: {
+        backgroundColor: COLORS.orange,
+        borderRadius: 14,
+        paddingVertical: 17,
+        alignItems: 'center',
+        marginTop: 8,
+        shadowColor: COLORS.orange,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 12,
+        elevation: 6,
+    },
+    submitButtonDisabled: {
+        backgroundColor: '#8B3D1E',
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+    submitButtonText: {
+        color: '#FFFFFF',
+        fontSize: 17,
+        fontWeight: '700',
+        letterSpacing: 0.3,
+    },
+    footerRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    footerText: { color: COLORS.textSecondary, fontSize: 15 },
+    footerLink: { color: COLORS.orange, fontSize: 15, fontWeight: '700' },
+});
