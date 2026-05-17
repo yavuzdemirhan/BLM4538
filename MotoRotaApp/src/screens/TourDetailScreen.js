@@ -12,9 +12,10 @@ import {
     Animated,
     Share,
     ImageBackground,
+    TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { toursAPI, participationsAPI, favoritesAPI, ratingsAPI } from '../services/api';
+import { toursAPI, participationsAPI, favoritesAPI, ratingsAPI, routeStopsAPI } from '../services/api';
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -111,6 +112,13 @@ export default function TourDetailScreen({ route, navigation }) {
     const [userRating, setUserRating] = useState(0);
     const [isJoinLoading, setIsJoinLoading] = useState(false);
     const [isRatingLoading, setIsRatingLoading] = useState(false);
+    const [stops, setStops] = useState([]);
+    const [isOwner, setIsOwner] = useState(false);
+    const [newStopName, setNewStopName] = useState('');
+    const [newStopDesc, setNewStopDesc] = useState('');
+    const [newStopTime, setNewStopTime] = useState('');
+    const [isStopLoading, setIsStopLoading] = useState(false);
+    const [showAddStop, setShowAddStop] = useState(false);
 
     const slideAnim = useRef(new Animated.Value(30)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -124,12 +132,17 @@ export default function TourDetailScreen({ route, navigation }) {
         setUsername(uname);
 
         try {
-            const [tourRes, ratingRes] = await Promise.all([
+            const [tourRes, ratingRes, stopsRes] = await Promise.all([
                 toursAPI.getById(tourId),
                 ratingsAPI.getAverage(tourId),
+                routeStopsAPI.getStops(tourId),
             ]);
             setTour(tourRes.data);
             setAvgRating(ratingRes.data);
+            setStops(stopsRes.data || []);
+
+            const owner = tourRes.data?.OlusturanKisi || tourRes.data?.olusturanKisi;
+            setIsOwner(uname && uname === owner);
 
             if (uname) {
                 const [partRes, favRes] = await Promise.all([
@@ -149,6 +162,34 @@ export default function TourDetailScreen({ route, navigation }) {
                 Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
             ]).start();
         }
+    };
+
+    const handleAddStop = async () => {
+        if (!newStopName.trim()) { Alert.alert('Eksik', 'Durak adı gerekli.'); return; }
+        setIsStopLoading(true);
+        try {
+            const res = await routeStopsAPI.addStop({
+                tourId, stopName: newStopName.trim(),
+                description: newStopDesc.trim(), time: newStopTime.trim(),
+                orderIndex: stops.length + 1,
+            });
+            setStops(prev => [...prev, res.data]);
+            setNewStopName(''); setNewStopDesc(''); setNewStopTime('');
+            setShowAddStop(false);
+        } catch (_) { Alert.alert('Hata', 'Durak eklenemedi.'); }
+        finally { setIsStopLoading(false); }
+    };
+
+    const handleDeleteStop = (stopId) => {
+        Alert.alert('Durağı Sil', 'Bu durağı silmek istediğine emin misin?', [
+            { text: 'İptal', style: 'cancel' },
+            { text: 'Sil', style: 'destructive', onPress: async () => {
+                try {
+                    await routeStopsAPI.deleteStop(stopId);
+                    setStops(prev => prev.filter(s => (s.id || s.Id) !== stopId));
+                } catch (_) { Alert.alert('Hata', 'Durak silinemedi.'); }
+            }},
+        ]);
     };
 
     const handleJoinLeave = async () => {
@@ -386,6 +427,98 @@ export default function TourDetailScreen({ route, navigation }) {
                     </View>
                 ) : null}
 
+                {/* Rota Durakları */}
+                <View style={styles.section}>
+                    <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>Rota Durakları ({stops.length})</Text>
+                        {isOwner && (
+                            <TouchableOpacity
+                                style={styles.addStopMiniBtn}
+                                onPress={() => setShowAddStop(v => !v)}
+                            >
+                                <Text style={styles.addStopMiniBtnText}>{showAddStop ? '✕ İptal' : '+ Ekle'}</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+
+                    {/* Sahip — Durak ekleme formu */}
+                    {isOwner && showAddStop && (
+                        <View style={[styles.sectionCard, { marginBottom: 10, padding: 14 }]}>
+                            <TextInput
+                                style={styles.stopInput}
+                                placeholder="Durak adı *"
+                                placeholderTextColor={C.textMuted}
+                                value={newStopName}
+                                onChangeText={setNewStopName}
+                            />
+                            <TextInput
+                                style={styles.stopInput}
+                                placeholder="Açıklama"
+                                placeholderTextColor={C.textMuted}
+                                value={newStopDesc}
+                                onChangeText={setNewStopDesc}
+                            />
+                            <TextInput
+                                style={styles.stopInput}
+                                placeholder="Saat / Süre (örn: 09:00)"
+                                placeholderTextColor={C.textMuted}
+                                value={newStopTime}
+                                onChangeText={setNewStopTime}
+                            />
+                            <TouchableOpacity
+                                style={[styles.addStopConfirmBtn, isStopLoading && { opacity: 0.6 }]}
+                                onPress={handleAddStop}
+                                disabled={isStopLoading}
+                            >
+                                {isStopLoading
+                                    ? <ActivityIndicator color="#FFF" size="small" />
+                                    : <Text style={styles.addStopConfirmText}>✓ Durağı Kaydet</Text>
+                                }
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {stops.length === 0 ? (
+                        <View style={[styles.sectionCard, { padding: 20, alignItems: 'center' }]}>
+                            <Text style={{ fontSize: 32, marginBottom: 8 }}>🗺️</Text>
+                            <Text style={{ color: C.textSecondary, fontSize: 14 }}>Henüz durak eklenmemiş</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.sectionCard}>
+                            {stops.map((stop, idx) => {
+                                const sId = stop.id || stop.Id;
+                                const sName = stop.stopName || stop.StopName;
+                                const sDesc = stop.description || stop.Description;
+                                const sTime = stop.time || stop.Time;
+                                return (
+                                    <View key={sId || idx}>
+                                        <View style={styles.stopRow}>
+                                            <View style={styles.stopBullet}>
+                                                <Text style={styles.stopBulletText}>{idx + 1}</Text>
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <Text style={styles.stopName}>{sName}</Text>
+                                                {sDesc ? <Text style={styles.stopDesc}>{sDesc}</Text> : null}
+                                                {sTime ? <Text style={styles.stopTime}>🕐 {sTime}</Text> : null}
+                                            </View>
+                                            {isOwner && (
+                                                <TouchableOpacity
+                                                    onPress={() => handleDeleteStop(sId)}
+                                                    style={styles.stopDeleteBtn}
+                                                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                                >
+                                                    <Text style={{ color: C.red, fontSize: 16 }}>🗑</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                        {idx < stops.length - 1 && <View style={styles.stopDivider} />}
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    )}
+                </View>
+
                 {/* Puanla */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Bu Turu Puanla</Text>
@@ -596,6 +729,26 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     rowDivider: { height: 1, backgroundColor: C.border, marginHorizontal: 16 },
+
+    // Section header with button
+    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+    addStopMiniBtn: { backgroundColor: C.orangeDim, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
+    addStopMiniBtnText: { color: C.orange, fontSize: 12, fontWeight: '700' },
+
+    // Stop input
+    stopInput: { backgroundColor: C.surfaceHigh, color: C.textPrimary, borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, marginBottom: 8 },
+    addStopConfirmBtn: { backgroundColor: C.green, borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 4 },
+    addStopConfirmText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+
+    // Stops list
+    stopRow: { flexDirection: 'row', alignItems: 'flex-start', padding: 14, gap: 12 },
+    stopDivider: { height: 1, backgroundColor: C.border, marginHorizontal: 14 },
+    stopBullet: { width: 26, height: 26, borderRadius: 13, backgroundColor: C.orange, justifyContent: 'center', alignItems: 'center', marginTop: 1 },
+    stopBulletText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
+    stopName: { color: C.textPrimary, fontSize: 14, fontWeight: '700', marginBottom: 2 },
+    stopDesc: { color: C.textSecondary, fontSize: 12, marginBottom: 2 },
+    stopTime: { color: C.textMuted, fontSize: 11 },
+    stopDeleteBtn: { padding: 4 },
 
     // Bilgi satırı
     infoRow: {

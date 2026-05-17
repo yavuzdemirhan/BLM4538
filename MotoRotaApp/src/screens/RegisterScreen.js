@@ -57,7 +57,7 @@ function InputField({ label, placeholder, value, onChangeText, secureTextEntry, 
         <View style={styles.inputGroup}>
             <Text style={styles.label}>{label}</Text>
             <Animated.View style={[styles.inputWrapper, { borderColor }]}>
-                <Text style={styles.inputIcon}>{icon}</Text>
+                <Text style={[styles.inputIcon, { color: '#FFF' }]}>{icon}</Text>
                 <TextInput
                     style={styles.input}
                     placeholder={placeholder}
@@ -76,8 +76,8 @@ function InputField({ label, placeholder, value, onChangeText, secureTextEntry, 
                         style={styles.eyeButton}
                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                        <Text style={styles.eyeIcon}>
-                            {showPassword ? '\uD83D\uDE48' : '\uD83D\uDC41\uFE0F'}
+                        <Text style={[styles.eyeIcon, { color: '#FFF' }]}>
+                            {showPassword ? 'Gizle' : 'Göster'}
                         </Text>
                     </TouchableOpacity>
                 )}
@@ -197,7 +197,7 @@ export default function RegisterScreen({ navigation }) {
                         {/* Header */}
                         <View style={styles.headerContainer}>
                             <View style={styles.iconBadge}>
-                                <Text style={styles.iconBadgeText}>{'\uD83C\uDFCD\uFE0F'}</Text>
+                                <Text style={styles.iconBadgeText}>{'M'}</Text>
                             </View>
                             <Text style={styles.headerTitle}>Yeni Sürücü</Text>
                             <Text style={styles.headerSubtitle}>
@@ -213,7 +213,7 @@ export default function RegisterScreen({ navigation }) {
                                 value={username}
                                 onChangeText={setUsername}
                                 autoCapitalize="none"
-                                icon={'\uD83D\uDC64'}
+                                icon={'#'}
                             />
                             <InputField
                                 label="E-POSTA"
@@ -222,7 +222,7 @@ export default function RegisterScreen({ navigation }) {
                                 onChangeText={setEmail}
                                 keyboardType="email-address"
                                 autoCapitalize="none"
-                                icon={'\uD83D\uDCE7'}
+                                icon={'@'}
                             />
                             <InputField
                                 label="ŞİFRE"
@@ -231,7 +231,7 @@ export default function RegisterScreen({ navigation }) {
                                 onChangeText={setPassword}
                                 secureTextEntry={true}
                                 autoCapitalize="none"
-                                icon={'\uD83D\uDD12'}
+                                icon={'*'}
                             />
 
                             {/* Şifre güç göstergesi */}
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
         shadowRadius: 12,
         elevation: 4,
     },
-    iconBadgeText: { fontSize: 32 },
+    iconBadgeText: { fontSize: 32, color: '#FFFFFF', fontWeight: '800' },
     headerTitle: {
         fontSize: 32,
         fontWeight: '800',
@@ -345,15 +345,15 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         paddingHorizontal: 14,
     },
-    inputIcon: { fontSize: 16, marginRight: 10 },
+    inputIcon: { fontSize: 16, marginRight: 10, fontWeight: '700' },
     input: {
         flex: 1,
         color: COLORS.textPrimary,
         fontSize: 15,
         paddingVertical: 14,
     },
-    eyeButton: { paddingLeft: 8 },
-    eyeIcon: { fontSize: 18 },
+    eyeButton: { paddingLeft: 8, justifyContent: 'center' },
+    eyeIcon: { fontSize: 13, fontWeight: '700' },
     strengthContainer: {
         flexDirection: 'row',
         alignItems: 'center',

@@ -102,4 +102,35 @@ export const ratingsAPI = {
         apiClient.get(`/Ratings/average/${tourId}`),
 };
 
+// ─── RouteStops ───────────────────────────────────────────────────────────────
+export const routeStopsAPI = {
+    /** Tura ait durakları listele */
+    getStops: (tourId) =>
+        apiClient.get(`/RouteStops/${tourId}`),
+
+    /** Yeni durak ekle (auth gerekli) */
+    addStop: (stop) =>
+        apiClient.post('/RouteStops', stop),
+
+    /** Durak sil (auth gerekli) */
+    deleteStop: (stopId) =>
+        apiClient.delete(`/RouteStops/${stopId}`),
+};
+
+// ─── Garage ───────────────────────────────────────────────────────────────────
+export const garageAPI = {
+    /** Kullanıcının motorlarını listele */
+    getMyBikes: (username) =>
+        apiClient.get(`/Garage/${username}`),
+
+    /** Yeni motor ekle */
+    addBike: (bike) =>
+        apiClient.post('/Garage', bike),
+
+    /** Motor sil */
+    deleteBike: (id) =>
+        apiClient.delete(`/Garage/${id}`),
+};
+
 export default apiClient;
+

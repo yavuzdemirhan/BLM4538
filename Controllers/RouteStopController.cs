@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MotoRota.Data;
@@ -25,6 +25,17 @@ namespace MotoRota.Controllers
             _context.RouteStops.Add(stop);
             await _context.SaveChangesAsync();
             return Ok(stop);
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteStop(int id)
+        {
+            var stop = await _context.RouteStops.FindAsync(id);
+            if (stop == null) return NotFound();
+            _context.RouteStops.Remove(stop);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }

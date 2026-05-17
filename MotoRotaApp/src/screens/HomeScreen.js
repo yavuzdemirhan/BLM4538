@@ -177,7 +177,8 @@ function TourCard({ tour, isFavorite, onToggleFavorite, onPress }) {
                             </View>
                             <Text style={styles.creatorText}>{olusturanKisi}</Text>
                             <View style={[styles.viewBadge]}>
-                                <Text style={styles.viewBadgeText}>👁 {viewCount || 0}</Text>
+                                <Image source={require('../assets/eye.png')} style={styles.viewIcon} resizeMode="contain" />
+                                <Text style={styles.viewBadgeText}>{viewCount || 0}</Text>
                             </View>
                         </View>
                     </View>
@@ -329,14 +330,6 @@ export default function HomeScreen({ navigation }) {
                     <Text style={styles.greeting}>Merhaba {username ? username : 'Binici'} 👋</Text>
                     <Text style={styles.headerTitle}>Turları Keşfet</Text>
                 </View>
-                <TouchableOpacity
-                    style={styles.profileButton}
-                    onPress={() => navigation.navigate('Welcome')}
-                >
-                    <Text style={styles.profileInitial}>
-                        {username ? username[0].toUpperCase() : '?'}
-                    </Text>
-                </TouchableOpacity>
             </View>
 
             {/* Arama */}
@@ -478,20 +471,7 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         letterSpacing: -0.5,
     },
-    profileButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: C.orange,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: C.orange,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.35,
-        shadowRadius: 8,
-        elevation: 6,
-    },
-    profileInitial: { color: '#FFF', fontSize: 18, fontWeight: '700' },
+
 
     // Arama
     searchWrapper: {
@@ -609,8 +589,8 @@ const styles = StyleSheet.create({
     },
     footerLeft: { flexDirection: 'row', alignItems: 'center', gap: 6 },
     footerRight: {},
-    ratingText: { color: C.textMuted, fontSize: 11, fontWeight: '600' },
-    dateText: { color: C.textMuted, fontSize: 11 },
+    ratingText: { color: C.textPrimary, fontSize: 11, fontWeight: '600' },
+    dateText: { color: C.textPrimary, fontSize: 11, fontWeight: '500' },
     creatorRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -632,9 +612,15 @@ const styles = StyleSheet.create({
         backgroundColor: C.surfaceHigh,
         borderRadius: 8,
         paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingVertical: 4,
+        borderWidth: 1,
+        borderColor: C.border,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
     },
-    viewBadgeText: { color: C.textMuted, fontSize: 11 },
+    viewIcon: { width: 14, height: 14, tintColor: C.textPrimary },
+    viewBadgeText: { color: C.textPrimary, fontSize: 11, fontWeight: '600' },
 
     // Yükleme
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 16 },
