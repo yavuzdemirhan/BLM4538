@@ -64,8 +64,8 @@ export const toursAPI = {
 // ─── Participations ───────────────────────────────────────────────────────────
 export const participationsAPI = {
     /** Tura katıl */
-    join: (tourId, username) =>
-        apiClient.post('/Participations', { tourId, username }),
+    join: (tourId, username, tourTitle) =>
+        apiClient.post('/Participations', { tourId, username, tourTitle }),
 
     /** Turdan ayrıl */
     leave: (tourId, username) =>
@@ -83,8 +83,8 @@ export const participationsAPI = {
 // ─── Favorites ────────────────────────────────────────────────────────────────
 export const favoritesAPI = {
     /** Favori ekle/çıkar (toggle) */
-    toggle: (tourId, username) =>
-        apiClient.post('/Favorites', { tourId, username }),
+    toggle: (tourId, username, tourTitle, tourImage) =>
+        apiClient.post('/Favorites', { tourId, username, tourTitle, tourImage }),
 
     /** Kullanıcının favori listesi */
     getMyFavorites: (username) =>
@@ -130,6 +130,36 @@ export const garageAPI = {
     /** Motor sil */
     deleteBike: (id) =>
         apiClient.delete(`/Garage/${id}`),
+};
+
+// ─── Comments ─────────────────────────────────────────────────────────────────
+export const commentsAPI = {
+    /** Tura ait onaylanmış yorumları listele */
+    getByTour: (tourId) =>
+        apiClient.get(`/Comments/${tourId}`),
+
+    /** Yorum gönder (auth gerekli) */
+    post: (tourId, username, content) =>
+        apiClient.post('/Comments', { tourId, username, content }),
+
+    /** Yorum sil (auth gerekli) */
+    deleteComment: (id) =>
+        apiClient.delete(`/Comments/${id}`),
+};
+
+// ─── Follows ──────────────────────────────────────────────────────────────────
+export const followsAPI = {
+    /** Takip et / takipten çık (toggle) */
+    toggle: (followerUsername, followingUsername) =>
+        apiClient.post('/Follows/toggle', { followerUsername, followingUsername }),
+
+    /** Takipçi ve takip edilen sayısı */
+    getStats: (username) =>
+        apiClient.get(`/Follows/stats/${username}`),
+
+    /** Takip durumunu kontrol et */
+    checkFollow: (follower, followed) =>
+        apiClient.get('/Follows/check', { params: { follower, followed } }),
 };
 
 export default apiClient;

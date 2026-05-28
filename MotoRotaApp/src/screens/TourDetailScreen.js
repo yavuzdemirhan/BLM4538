@@ -15,7 +15,7 @@ import {
     TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { toursAPI, participationsAPI, favoritesAPI, ratingsAPI, routeStopsAPI } from '../services/api';
+import { toursAPI, participationsAPI, favoritesAPI, ratingsAPI, routeStopsAPI, commentsAPI, followsAPI } from '../services/api';
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -119,6 +119,15 @@ export default function TourDetailScreen({ route, navigation }) {
     const [newStopTime, setNewStopTime] = useState('');
     const [isStopLoading, setIsStopLoading] = useState(false);
     const [showAddStop, setShowAddStop] = useState(false);
+    // Yorumlar
+    const [comments, setComments] = useState([]);
+    const [commentText, setCommentText] = useState('');
+    const [isCommentLoading, setIsCommentLoading] = useState(false);
+    const [commentSent, setCommentSent] = useState(false);
+    // Takip
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isFollowLoading, setIsFollowLoading] = useState(false);
+    const [tourOwner, setTourOwner] = useState('');
 
     const slideAnim = useRef(new Animated.Value(30)).current;
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -132,17 +141,20 @@ export default function TourDetailScreen({ route, navigation }) {
         setUsername(uname);
 
         try {
-            const [tourRes, ratingRes, stopsRes] = await Promise.all([
+            const [tourRes, ratingRes, stopsRes, commentsRes] = await Promise.all([
                 toursAPI.getById(tourId),
                 ratingsAPI.getAverage(tourId),
                 routeStopsAPI.getStops(tourId),
+                commentsAPI.getByTour(tourId),
             ]);
             setTour(tourRes.data);
             setAvgRating(ratingRes.data);
             setStops(stopsRes.data || []);
+            setComments(commentsRes.data || []);
 
             const owner = tourRes.data?.OlusturanKisi || tourRes.data?.olusturanKisi;
             setIsOwner(uname && uname === owner);
+            setTourOwner(owner || '');
 
             if (uname) {
                 const [partRes, favRes] = await Promise.all([
@@ -152,6 +164,14 @@ export default function TourDetailScreen({ route, navigation }) {
                 setIsJoined(partRes.data.isJoined);
                 const favSet = new Set(favRes.data.map(f => f.tourId || f.TourId));
                 setIsFavorite(favSet.has(tourId));
+
+                // Follow check’ı ayrı tut — hata olsa diğerleri etkilenmesin
+                if (owner && uname !== owner) {
+                    try {
+                        const followRes = await followsAPI.checkFollow(uname, owner);
+                        setIsFollowing(followRes.data.isFollowing);
+                    } catch (_) {}
+                }
             }
         } catch (e) {
             Alert.alert('Hata', 'Tur bilgileri yüklenemedi.');
@@ -204,7 +224,7 @@ export default function TourDetailScreen({ route, navigation }) {
                 setIsJoined(false);
                 Alert.alert('Ayrıldın', 'Turdan başarıyla ayrıldın. 🏍️');
             } else {
-                await participationsAPI.join(tourId, username);
+                await participationsAPI.join(tourId, username, tour?.Baslik || tour?.baslik || 'Motorsiklet Turu');
                 setIsJoined(true);
                 Alert.alert('Katıldın! 🎉', 'Tura başarıyla kaydoldun. Hazır ol!');
             }
@@ -224,7 +244,12 @@ export default function TourDetailScreen({ route, navigation }) {
         const prev = isFavorite;
         setIsFavorite(!prev); // Optimistik
         try {
-            await favoritesAPI.toggle(tourId, username);
+            await favoritesAPI.toggle(
+                tourId,
+                username,
+                tour?.Baslik || tour?.baslik || 'Motorsiklet Turu',
+                tour?.CustomImageUrl || tour?.customImageUrl || ''
+            );
         } catch (_) {
             setIsFavorite(prev);
         }
@@ -246,6 +271,58 @@ export default function TourDetailScreen({ route, navigation }) {
         } finally {
             setIsRatingLoading(false);
         }
+    };
+
+    // ─── Takip ──────────────────────────────────────────────────────────────────
+    const handleFollow = async () => {
+        if (!username) {
+            Alert.alert('Giriş Gerekli', 'Takip etmek için giriş yapman gerekiyor.');
+            return;
+        }
+        const prev = isFollowing;
+        setIsFollowing(!prev);
+        setIsFollowLoading(true);
+        try {
+            await followsAPI.toggle(username, tourOwner);
+        } catch (_) {
+            setIsFollowing(prev);
+            Alert.alert('Hata', 'İşlem gerçekleştirilemedi.');
+        } finally {
+            setIsFollowLoading(false);
+        }
+    };
+
+    // ─── Yorumlar ───────────────────────────────────────────────────────────────
+    const handleSendComment = async () => {
+        if (!commentText.trim()) return;
+        if (!username) {
+            Alert.alert('Giriş Gerekli', 'Yorum yapmak için giriş yapman gerekiyor.');
+            return;
+        }
+        setIsCommentLoading(true);
+        try {
+            await commentsAPI.post(tourId, username, commentText.trim());
+            setCommentText('');
+            setCommentSent(true);
+        } catch (e) {
+            const msg = e.response?.data;
+            if (typeof msg === 'string') Alert.alert('Hata', msg);
+            else Alert.alert('Hata', 'Yorum gönderilemedi.');
+        } finally {
+            setIsCommentLoading(false);
+        }
+    };
+
+    const handleDeleteComment = (commentId) => {
+        Alert.alert('Yorumu Sil', 'Bu yorumu silmek istediğine emin misin?', [
+            { text: 'İptal', style: 'cancel' },
+            { text: 'Sil', style: 'destructive', onPress: async () => {
+                try {
+                    await commentsAPI.deleteComment(commentId);
+                    setComments(prev => prev.filter(c => (c.id || c.Id) !== commentId));
+                } catch (_) { Alert.alert('Hata', 'Yorum silinemedi.'); }
+            }},
+        ]);
     };
 
     const handleShare = async () => {
@@ -291,6 +368,7 @@ export default function TourDetailScreen({ route, navigation }) {
     const tarih = tour.Tarih || tour.tarih;
     const olusturanKisi = tour.OlusturanKisi || tour.olusturanKisi || 'Bilinmiyor';
     const viewCount = tour.ViewCount ?? tour.viewCount ?? 0;
+    const canFollow = username && username !== olusturanKisi && olusturanKisi !== 'Bilinmiyor' && !isOwner;
 
     const cfg = getCategoryConfig(kategori);
     const bgImg = getCategoryImage(kategori);
@@ -364,34 +442,61 @@ export default function TourDetailScreen({ route, navigation }) {
                                     <Text style={styles.heroMetaText}>{viewCount} görüntülenme</Text>
                                 </View>
                                 <View style={styles.heroDivider} />
-                                <View style={styles.heroMetaItem}>
+                                <View style={[styles.heroMetaItem, { flex: 1 }]}>
                                     <Text style={styles.heroMetaIcon}>🏍️</Text>
-                                    <Text style={styles.heroMetaText}>@{olusturanKisi}</Text>
+                                    <Text style={[styles.heroMetaText, { flex: 1 }]} numberOfLines={1} ellipsizeMode="tail">@{olusturanKisi}</Text>
                                 </View>
+                                {canFollow && (
+                                    <TouchableOpacity
+                                        style={[
+                                            styles.followBtn,
+                                            isFollowing ? styles.followBtnActive : styles.followBtnInactive,
+                                        ]}
+                                        onPress={handleFollow}
+                                        disabled={isFollowLoading}
+                                    >
+                                        {isFollowLoading
+                                            ? <ActivityIndicator size="small" color={isFollowing ? C.orange : '#FFF'} />
+                                            : <Text style={[
+                                                styles.followBtnText,
+                                                isFollowing && { color: C.orange },
+                                              ]}>
+                                                {isFollowing ? '✓ Takiptesin' : '+ Takip Et'}
+                                              </Text>
+                                        }
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         </View>
                     </ImageBackground>
                 </View>
 
-                {/* Katıl/Ayrıl Butonu */}
-                <TouchableOpacity
-                    style={[
-                        styles.joinBtn,
-                        isJoined ? styles.joinBtnLeave : styles.joinBtnJoin,
-                        isJoinLoading && { opacity: 0.6 },
-                    ]}
-                    onPress={handleJoinLeave}
-                    disabled={isJoinLoading}
-                    activeOpacity={0.85}
-                >
-                    {isJoinLoading ? (
-                        <ActivityIndicator color="#FFF" size="small" />
-                    ) : (
-                        <Text style={styles.joinBtnText}>
-                            {isJoined ? '🚪  Turdan Ayrıl' : '🏁  Tura Katıl'}
-                        </Text>
-                    )}
-                </TouchableOpacity>
+                {/* Katıl / Ayrıl / Kaptan Rozeti */}
+                {isOwner ? (
+                    <View style={styles.captainBadge}>
+                        <Text style={styles.captainBadgeIcon}>🏁</Text>
+                        <Text style={styles.captainBadgeText}>Bu Turun Kaptanısınız</Text>
+                    </View>
+                ) : (
+                    <TouchableOpacity
+                        style={[
+                            styles.joinBtn,
+                            isJoined ? styles.joinBtnLeave : styles.joinBtnJoin,
+                            isJoinLoading && { opacity: 0.6 },
+                        ]}
+                        onPress={handleJoinLeave}
+                        disabled={isJoinLoading}
+                        activeOpacity={0.85}
+                    >
+                        {isJoinLoading ? (
+                            <ActivityIndicator color="#FFF" size="small" />
+                        ) : (
+                            <Text style={styles.joinBtnText}>
+                                {isJoined ? '🚪  Turdan Ayrıl' : '🏁  Tura Katıl'}
+                            </Text>
+                        )}
+                    </TouchableOpacity>
+                )}
 
                 {/* Tur Bilgileri */}
                 <View style={styles.section}>
@@ -552,6 +657,105 @@ export default function TourDetailScreen({ route, navigation }) {
                     </View>
                 </View>
 
+                {/* Yorumlar */}
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Yorumlar ({comments.length})</Text>
+
+                    {/* Yorum Gönderme Formu */}
+                    {username ? (
+                        commentSent ? (
+                            <View style={[styles.sectionCard, styles.commentSentBox]}>
+                                <Text style={{ fontSize: 24, marginBottom: 6 }}>⏳</Text>
+                                <Text style={styles.commentSentText}>Yorumunuz admin onayına gönderildi.</Text>
+                            </View>
+                        ) : (
+                            <View style={[styles.sectionCard, { padding: 14, marginBottom: 10 }]}>
+                                <TextInput
+                                    style={styles.commentInput}
+                                    placeholder="Tur hakkında bir yorum yaz..."
+                                    placeholderTextColor={C.textMuted}
+                                    value={commentText}
+                                    onChangeText={setCommentText}
+                                    multiline
+                                    numberOfLines={3}
+                                    textAlignVertical="top"
+                                />
+                                <TouchableOpacity
+                                    style={[
+                                        styles.commentSendBtn,
+                                        (!commentText.trim() || isCommentLoading) && { opacity: 0.5 },
+                                    ]}
+                                    onPress={handleSendComment}
+                                    disabled={!commentText.trim() || isCommentLoading}
+                                >
+                                    {isCommentLoading
+                                        ? <ActivityIndicator color="#FFF" size="small" />
+                                        : <Text style={styles.commentSendBtnText}>✉️  Yorum Gönder</Text>
+                                    }
+                                </TouchableOpacity>
+                            </View>
+                        )
+                    ) : (
+                        <View style={[styles.sectionCard, styles.loginPromptBox]}>
+                            <Text style={styles.loginPromptText}>Yorum yapmak için giriş yapman gerekiyor</Text>
+                            <TouchableOpacity
+                                style={styles.loginPromptBtn}
+                                onPress={() => navigation.navigate('Login')}
+                            >
+                                <Text style={styles.loginPromptBtnText}>Giriş Yap →</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {/* Yorum Listesi */}
+                    {comments.length === 0 ? (
+                        <View style={[styles.sectionCard, { padding: 20, alignItems: 'center' }]}>
+                            <Text style={{ fontSize: 28, marginBottom: 6 }}>💬</Text>
+                            <Text style={{ color: C.textSecondary, fontSize: 14 }}>Henüz onaylanmış yorum yok</Text>
+                        </View>
+                    ) : (
+                        <View style={styles.sectionCard}>
+                            {comments.map((c, idx) => {
+                                const cId = c.id || c.Id;
+                                const cUsername = c.username || c.Username;
+                                const cContent = c.content || c.Content;
+                                const cDate = c.createdAt || c.CreatedAt;
+                                const dateStr = cDate
+                                    ? new Date(cDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })
+                                    : '';
+                                return (
+                                    <View key={cId || idx}>
+                                        <View style={styles.commentRow}>
+                                            <View style={styles.commentAvatar}>
+                                                <Text style={styles.commentAvatarText}>
+                                                    {cUsername ? cUsername[0].toUpperCase() : '?'}
+                                                </Text>
+                                            </View>
+                                            <View style={{ flex: 1 }}>
+                                                <View style={styles.commentHeader}>
+                                                    <Text style={styles.commentUsername}>@{cUsername}</Text>
+                                                    {dateStr ? <Text style={styles.commentDate}>{dateStr}</Text> : null}
+                                                </View>
+                                                <Text style={styles.commentContent}>{cContent}</Text>
+                                            </View>
+                                            {(isOwner || cUsername === username) && (
+                                                <TouchableOpacity
+                                                    onPress={() => handleDeleteComment(cId)}
+                                                    style={styles.commentDeleteBtn}
+                                                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                                                >
+                                                    <Text style={{ color: C.red, fontSize: 14 }}>🗑</Text>
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                        {idx < comments.length - 1 && <View style={styles.rowDivider} />}
+                                    </View>
+                                );
+                            })}
+                        </View>
+                    )}
+                </View>
+
                 {/* Katılım durumu */}
                 {isJoined && (
                     <View style={[styles.statusBanner, { backgroundColor: C.greenDim, borderColor: C.green + '40' }]}>
@@ -681,6 +885,27 @@ const styles = StyleSheet.create({
     heroMetaIcon: { fontSize: 14 },
     heroMetaText: { color: C.textSecondary, fontSize: 13 },
     heroDivider: { width: 1, height: 16, backgroundColor: C.border },
+
+    // Kaptan rozeti
+    captainBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        backgroundColor: C.greenDim,
+        borderWidth: 1.5,
+        borderColor: C.green + '60',
+        borderRadius: 16,
+        paddingVertical: 16,
+        marginBottom: 24,
+    },
+    captainBadgeIcon: { fontSize: 20 },
+    captainBadgeText: {
+        color: C.green,
+        fontSize: 16,
+        fontWeight: '700',
+        letterSpacing: 0.2,
+    },
 
     // Katıl butonu
     joinBtn: {
@@ -823,4 +1048,78 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     statusBannerText: { fontSize: 14, fontWeight: '600', flex: 1, lineHeight: 20 },
+
+    // Takip butonu
+    followBtn: {
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 90,
+    },
+    followBtnInactive: {
+        backgroundColor: C.orange,
+        shadowColor: C.orange,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 4,
+    },
+    followBtnActive: {
+        backgroundColor: C.orangeDim,
+        borderWidth: 1,
+        borderColor: C.orange,
+    },
+    followBtnText: {
+        color: '#FFF',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+
+    // Yorumlar
+    commentInput: {
+        backgroundColor: C.surfaceHigh,
+        color: C.textPrimary,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: C.border,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        fontSize: 14,
+        marginBottom: 10,
+        minHeight: 72,
+    },
+    commentSendBtn: {
+        backgroundColor: C.orange,
+        borderRadius: 10,
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
+    commentSendBtnText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+    commentSentBox: { padding: 20, alignItems: 'center' },
+    commentSentText: { color: C.textSecondary, fontSize: 13, textAlign: 'center' },
+    commentRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        padding: 14,
+        gap: 10,
+    },
+    commentAvatar: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: C.purpleDim,
+        borderWidth: 1,
+        borderColor: C.purple,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 2,
+    },
+    commentAvatarText: { color: C.purple, fontSize: 13, fontWeight: '700' },
+    commentHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+    commentUsername: { color: C.orange, fontSize: 13, fontWeight: '700' },
+    commentDate: { color: C.textMuted, fontSize: 11 },
+    commentContent: { color: C.textPrimary, fontSize: 14, lineHeight: 20 },
+    commentDeleteBtn: { padding: 4, marginTop: 2 },
 });

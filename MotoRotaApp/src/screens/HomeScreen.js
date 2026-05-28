@@ -310,7 +310,12 @@ export default function HomeScreen({ navigation }) {
             return next;
         });
         try {
-            await favoritesAPI.toggle(tour.Id || tour.id, username);
+            await favoritesAPI.toggle(
+                tour.Id || tour.id,
+                username,
+                tour.Baslik || tour.baslik || 'Motorsiklet Turu',
+                tour.CustomImageUrl || tour.customImageUrl || ''
+            );
         } catch (_) {
             // Hata durumunda geri al
             setFavorites(prev => {
