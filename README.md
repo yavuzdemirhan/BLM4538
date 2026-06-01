@@ -8,3 +8,4 @@ Video Linkleri:
 6. HAFTA: https://youtu.be/L4v4FtDh9ec
 7. HAFTA: https://youtu.be/06c_usSHd6E
 8. HAFTA: https://youtu.be/IaDMvYsMC50
+9. HAFTA: https://youtu.be/Nuxu_ONHPoA
