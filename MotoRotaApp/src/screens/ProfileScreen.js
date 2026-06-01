@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-    StatusBar, ScrollView, FlatList, ActivityIndicator, Alert,
+    StatusBar, ScrollView, FlatList, ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { toursAPI, participationsAPI, favoritesAPI, followsAPI } from '../services/api';
+import { useAlert } from '../components/CustomAlert';
+import Icon from '../components/Icons';
 
 const C = {
     bg: '#0A0A0F', surface: '#13131A', surfaceHigh: '#1C1C28',
@@ -17,6 +19,7 @@ const C = {
 import { MiniTourCard } from './ActivitiesScreen';
 
 export default function ProfileScreen({ navigation }) {
+    const alert = useAlert();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [favTours, setFavTours] = useState([]);
@@ -25,6 +28,7 @@ export default function ProfileScreen({ navigation }) {
     const [followers, setFollowers] = useState(0);
     const [following, setFollowing] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         init();
@@ -36,8 +40,10 @@ export default function ProfileScreen({ navigation }) {
         setIsLoading(true);
         const uname = await AsyncStorage.getItem('username') || '';
         const mail  = await AsyncStorage.getItem('userEmail') || '';
+        const role  = await AsyncStorage.getItem('userRole') || 'User';
         setUsername(uname);
         setEmail(mail);
+        setIsAdmin(role === 'Admin');
         if (uname) {
             try {
                 const [myRes, joinRes, favRes, followStatsRes, allToursRes] = await Promise.all([
@@ -64,13 +70,18 @@ export default function ProfileScreen({ navigation }) {
     };
 
     const handleLogout = () => {
-        Alert.alert('Çıkış Yap', 'Hesabından çıkmak istediğine emin misin?', [
-            { text: 'İptal', style: 'cancel' },
-            { text: 'Çıkış Yap', style: 'destructive', onPress: async () => {
-                await AsyncStorage.multiRemove(['userToken', 'username', 'userEmail']);
-                navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
-            }},
-        ]);
+        alert.show({
+            icon: 'warning',
+            title: 'Çıkış Yap',
+            message: 'Hesabından çıkmak istediğine emin misin?',
+            buttons: [
+                { text: 'İptal', style: 'cancel' },
+                { text: 'Çıkış Yap', style: 'destructive', onPress: async () => {
+                    await AsyncStorage.multiRemove(['userToken', 'username', 'userEmail']);
+                    navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
+                }},
+            ],
+        });
     };
 
     const goToTour = (tourId) => {
@@ -87,7 +98,10 @@ export default function ProfileScreen({ navigation }) {
             <View style={styles.topBar}>
                 <Text style={styles.topBarTitle}>Profilim</Text>
                 <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
-                    <Text style={styles.logoutBtnText}>Çıkış</Text>
+                    <View style={{flexDirection:'row', alignItems:'center', gap: 4}}>
+                        <Icon name="logout" size={14} color={C.red} />
+                        <Text style={styles.logoutBtnText}>Çıkış</Text>
+                    </View>
                 </TouchableOpacity>
             </View>
 
@@ -133,7 +147,7 @@ export default function ProfileScreen({ navigation }) {
 
                 {/* Garaj Butonu */}
                 <TouchableOpacity style={styles.garageBtn} onPress={() => navigation.navigate('Garage')}>
-                    <Text style={styles.garageBtnIcon}>🏍️</Text>
+                    <Icon name="garage" size={28} color={C.orange} />
                     <View style={{ flex: 1 }}>
                         <Text style={styles.garageBtnTitle}>Garajım</Text>
                         <Text style={styles.garageBtnSub}>Motorlarını yönet</Text>
@@ -141,8 +155,26 @@ export default function ProfileScreen({ navigation }) {
                     <Text style={styles.garageBtnArrow}>›</Text>
                 </TouchableOpacity>
 
+                {/* Admin Paneli Butonu */}
+                {isAdmin && (
+                    <TouchableOpacity style={styles.adminBtn} onPress={() => navigation.navigate('AdminComments')}>
+                        <Icon name="admin" size={28} color={C.orange} />
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.adminBtnTitle}>Admin Paneli</Text>
+                            <Text style={styles.adminBtnSub}>Yorum onay yönetimi</Text>
+                        </View>
+                        <View style={styles.adminBadge}>
+                            <Text style={styles.adminBadgeText}>Admin</Text>
+                        </View>
+                        <Text style={styles.garageBtnArrow}>›</Text>
+                    </TouchableOpacity>
+                )}
+
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>❤️ Favori Turlarım</Text>
+                    <View style={{flexDirection:'row', alignItems:'center', gap: 8}}>
+                        <Icon name="heart" size={16} color={C.red} />
+                        <Text style={styles.sectionTitle}>Favori Turlarım</Text>
+                    </View>
                 </View>
 
                 {/* Tab Content */}
@@ -152,7 +184,7 @@ export default function ProfileScreen({ navigation }) {
                     </View>
                 ) : favTours.length === 0 ? (
                     <View style={styles.emptyBox}>
-                        <Text style={{ fontSize: 48, marginBottom: 12 }}>🏍️</Text>
+                        <View style={{ marginBottom: 12 }}><Icon name="motorcycle" size={48} color={C.textMuted} /></View>
                         <Text style={styles.emptyText}>Henüz favori eklemedin</Text>
                     </View>
                 ) : (
@@ -191,6 +223,13 @@ const styles = StyleSheet.create({
     garageBtnTitle: { color: C.textPrimary, fontSize: 16, fontWeight: '700' },
     garageBtnSub: { color: C.textSecondary, fontSize: 12, marginTop: 2 },
     garageBtnArrow: { color: C.orange, fontSize: 24, fontWeight: '300' },
+
+    adminBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: '#FF6B3540', marginHorizontal: 16, marginTop: 0, marginBottom: 8, padding: 16, gap: 14, shadowColor: C.orange, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4 },
+    adminBtnIcon: { fontSize: 28 },
+    adminBtnTitle: { color: C.textPrimary, fontSize: 16, fontWeight: '700' },
+    adminBtnSub: { color: C.textSecondary, fontSize: 12, marginTop: 2 },
+    adminBadge: { backgroundColor: '#FF6B3520', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#FF6B3540' },
+    adminBadgeText: { color: C.orange, fontSize: 11, fontWeight: '700' },
 
     sectionHeader: { paddingHorizontal: 16, marginBottom: 12, marginTop: 8 },
     sectionTitle: { color: C.textPrimary, fontSize: 16, fontWeight: '700' },

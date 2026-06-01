@@ -8,13 +8,13 @@ import {
     SafeAreaView,
     KeyboardAvoidingView,
     Platform,
-    Alert,
     ActivityIndicator,
     ScrollView,
     Animated,
     StatusBar,
 } from 'react-native';
 import { authAPI } from '../services/api';
+import { useAlert } from '../components/CustomAlert';
 
 const COLORS = {
     bg: '#0A0A0F',
@@ -114,6 +114,7 @@ function PasswordStrengthBar({ password }) {
 }
 
 export default function RegisterScreen({ navigation }) {
+    const alert = useAlert();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -130,17 +131,17 @@ export default function RegisterScreen({ navigation }) {
 
     const validate = () => {
         if (!username.trim()) {
-            Alert.alert('Eksik Bilgi', 'Sürücü adını girmelisin.'); return false;
+            alert.show({ icon: 'warning', title: 'Eksik Bilgi', message: 'Sürücü adını girmelisin.' }); return false;
         }
         if (username.trim().length < 3) {
-            Alert.alert('Geçersiz Ad', 'Sürücü adı en az 3 karakter olmalı.'); return false;
+            alert.show({ icon: 'warning', title: 'Geçersiz Ad', message: 'Sürücü adı en az 3 karakter olmalı.' }); return false;
         }
         const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRe.test(email.trim())) {
-            Alert.alert('Geçersiz E-posta', 'Lütfen geçerli bir e-posta adresi gir.'); return false;
+            alert.show({ icon: 'warning', title: 'Geçersiz E-posta', message: 'Lütfen geçerli bir e-posta adresi gir.' }); return false;
         }
         if (password.length < 6) {
-            Alert.alert('Zayıf Şifre', 'Şifre en az 6 karakter olmalı.'); return false;
+            alert.show({ icon: 'warning', title: 'Zayıf Şifre', message: 'Şifre en az 6 karakter olmalı.' }); return false;
         }
         return true;
     };
@@ -151,11 +152,12 @@ export default function RegisterScreen({ navigation }) {
         setIsLoading(true);
         try {
             await authAPI.register(username.trim(), email.trim(), password);
-            Alert.alert(
-                'Ekibe Katıldın! \uD83C\uDF89',
-                'Hesabın oluşturuldu. Şimdi giriş yapabilirsin.',
-                [{ text: 'Giriş Yap', onPress: () => navigation.navigate('Login') }]
-            );
+            alert.show({
+                icon: 'party',
+                title: 'Ekibe Katıldın!',
+                message: 'Hesabın oluşturuldu. Şimdi giriş yapabilirsin.',
+                buttons: [{ text: 'Giriş Yap', onPress: () => navigation.navigate('Login') }],
+            });
         } catch (error) {
             const errors = error.response?.data;
             let msg = 'Kayıt işlemi başarısız. Bilgilerini kontrol et.';
@@ -165,7 +167,7 @@ export default function RegisterScreen({ navigation }) {
             } else if (error.response?.data?.message) {
                 msg = error.response.data.message;
             }
-            Alert.alert('Kayıt Başarısız', msg);
+            alert.show({ icon: 'error', title: 'Kayıt Başarısız', message: msg });
         } finally {
             setIsLoading(false);
         }

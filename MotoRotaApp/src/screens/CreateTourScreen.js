@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet,
     SafeAreaView, StatusBar, ScrollView, KeyboardAvoidingView,
-    Platform, Alert, ActivityIndicator, Animated,
+    Platform, ActivityIndicator, Animated,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { toursAPI, routeStopsAPI } from '../services/api';
+import { useAlert } from '../components/CustomAlert';
+import Icon from '../components/Icons';
 
 const C = {
     bg: '#0A0A0F', surface: '#13131A', surfaceHigh: '#1C1C28',
@@ -17,12 +19,12 @@ const C = {
 };
 
 const CATEGORIES = [
-    { key: 'Sport',     icon: '🏎️', color: C.orange,  bg: C.orangeDim  },
-    { key: 'Naked',     icon: '⚡',  color: C.purple,  bg: C.purpleDim  },
-    { key: 'Adventure', icon: '🏔️', color: C.green,   bg: C.greenDim   },
-    { key: 'Touring',   icon: '🛣️', color: C.blue,    bg: C.blueDim    },
-    { key: 'Cruiser',   icon: '🌅', color: C.yellow,  bg: C.yellowDim  },
-    { key: 'Enduro',    icon: '🌲', color: C.red,     bg: C.redDim     },
+    { key: 'Sport',     icon: '🏎️', iconName: 'sport', color: C.orange,  bg: C.orangeDim  },
+    { key: 'Naked',     icon: '⚡',  iconName: 'naked', color: C.purple,  bg: C.purpleDim  },
+    { key: 'Adventure', icon: '🏔️', iconName: 'adventure', color: C.green,   bg: C.greenDim   },
+    { key: 'Touring',   icon: '🛣️', iconName: 'touring', color: C.blue,    bg: C.blueDim    },
+    { key: 'Cruiser',   icon: '🌅', iconName: 'cruiser', color: C.yellow,  bg: C.yellowDim  },
+    { key: 'Enduro',    icon: '🌲', iconName: 'enduro', color: C.red,     bg: C.redDim     },
 ];
 
 function Field({ label, icon, placeholder, value, onChangeText, multiline, keyboardType, maxLength }) {
@@ -35,7 +37,7 @@ function Field({ label, icon, placeholder, value, onChangeText, multiline, keybo
         <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>{label}</Text>
             <Animated.View style={[styles.fieldWrapper, { borderColor }, multiline && styles.fieldWrapperMulti]}>
-                <Text style={styles.fieldIcon}>{icon}</Text>
+                <Icon name={icon} size={16} color={isFocused ? C.orange : C.textSecondary} style={{ marginRight: 10, marginTop: multiline ? 14 : 14 }} />
                 <TextInput
                     style={[styles.fieldInput, multiline && styles.fieldInputMulti]}
                     placeholder={placeholder} placeholderTextColor={C.textMuted}
@@ -52,6 +54,7 @@ function Field({ label, icon, placeholder, value, onChangeText, multiline, keybo
 }
 
 export default function CreateTourScreen({ navigation }) {
+    const alert = useAlert();
     const [baslik, setBaslik] = useState('');
     const [aciklama, setAciklama] = useState('');
     const [rota, setRota] = useState('');
@@ -79,22 +82,22 @@ export default function CreateTourScreen({ navigation }) {
     }, []);
 
     const validate = () => {
-        if (!baslik.trim())   { Alert.alert('Eksik Alan', 'Tur başlığını gir.'); return false; }
-        if (!rota.trim())     { Alert.alert('Eksik Alan', 'Rotayı gir (örn: İstanbul → Bursa).'); return false; }
-        if (!kategori)        { Alert.alert('Eksik Alan', 'Motor kategorisi seç.'); return false; }
-        if (!tarih.trim())    { Alert.alert('Eksik Alan', 'Tarih gir (GG.AA.YYYY).'); return false; }
+        if (!baslik.trim())   { alert.show({ icon: 'warning', title: 'Eksik Alan', message: 'Tur başlığını gir.' }); return false; }
+        if (!rota.trim())     { alert.show({ icon: 'warning', title: 'Eksik Alan', message: 'Rotayı gir (örn: İstanbul → Bursa).' }); return false; }
+        if (!kategori)        { alert.show({ icon: 'warning', title: 'Eksik Alan', message: 'Motor kategorisi seç.' }); return false; }
+        if (!tarih.trim())    { alert.show({ icon: 'warning', title: 'Eksik Alan', message: 'Tarih gir (GG.AA.YYYY).' }); return false; }
         const parts = tarih.trim().split('.');
-        if (parts.length !== 3) { Alert.alert('Hatalı Tarih', 'Tarih formatı GG.AA.YYYY olmalı.'); return false; }
+        if (parts.length !== 3) { alert.show({ icon: 'warning', title: 'Hatalı Tarih', message: 'Tarih formatı GG.AA.YYYY olmalı.' }); return false; }
         const [gun, ay, yil] = parts.map(Number);
         const parsed = new Date(yil, ay - 1, gun);
-        if (isNaN(parsed.getTime()) || parsed.getFullYear() !== yil) { Alert.alert('Hatalı Tarih', 'Geçerli bir tarih gir.'); return false; }
+        if (isNaN(parsed.getTime()) || parsed.getFullYear() !== yil) { alert.show({ icon: 'warning', title: 'Hatalı Tarih', message: 'Geçerli bir tarih gir.' }); return false; }
         return true;
     };
 
     const handleCreate = async () => {
         if (!validate()) return;
         const username = await AsyncStorage.getItem('username');
-        if (!username) { Alert.alert('Giriş Gerekli', 'Tur oluşturmak için giriş yapman gerekiyor.'); return; }
+        if (!username) { alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Tur oluşturmak için giriş yapman gerekiyor.' }); return; }
         setIsLoading(true);
         try {
             const parts = tarih.trim().split('.');
@@ -110,14 +113,14 @@ export default function CreateTourScreen({ navigation }) {
             setPhase('stops');
         } catch (e) {
             const msg = e.response?.data || 'Tur oluşturulamadı.';
-            Alert.alert('Hata', typeof msg === 'string' ? msg : JSON.stringify(msg));
+            alert.show({ icon: 'error', title: 'Hata', message: typeof msg === 'string' ? msg : JSON.stringify(msg) });
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleAddStop = async () => {
-        if (!stopName.trim()) { Alert.alert('Eksik Alan', 'Durak adını gir.'); return; }
+        if (!stopName.trim()) { alert.show({ icon: 'warning', title: 'Eksik Alan', message: 'Durak adını gir.' }); return; }
         setIsStopLoading(true);
         try {
             const res = await routeStopsAPI.addStop({
@@ -130,17 +133,22 @@ export default function CreateTourScreen({ navigation }) {
             setStops(prev => [...prev, res.data]);
             setStopName(''); setStopDesc(''); setStopTime('');
         } catch (e) {
-            Alert.alert('Hata', 'Durak eklenemedi.');
+            alert.show({ icon: 'error', title: 'Hata', message: 'Durak eklenemedi.' });
         } finally {
             setIsStopLoading(false);
         }
     };
 
     const handleFinish = () => {
-        Alert.alert('🏁 Tur Hazır!', `"${baslik}" adlı turun ve ${stops.length} durağı oluşturuldu!`, [
-            { text: 'Detayı Gör', onPress: () => { navigation.goBack(); setTimeout(() => navigation.navigate('TourDetail', { tourId: createdTourId }), 300); } },
-            { text: 'Ana Sayfaya Dön', onPress: () => navigation.goBack() },
-        ]);
+        alert.show({
+            icon: 'party',
+            title: 'Tur Hazır!',
+            message: `"${baslik}" adlı turun ve ${stops.length} durağı oluşturuldu!`,
+            buttons: [
+                { text: 'Detayı Gör', onPress: () => { navigation.goBack(); setTimeout(() => navigation.navigate('TourDetail', { tourId: createdTourId }), 300); } },
+                { text: 'Ana Sayfaya Dön', onPress: () => navigation.goBack() },
+            ],
+        });
     };
 
     // ─── DURAK EKLEME AŞAMASI ─────────────────────────────────────────────────
@@ -159,9 +167,9 @@ export default function CreateTourScreen({ navigation }) {
                     <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                         {/* Başlık */}
                         <View style={styles.stopsHero}>
-                            <Text style={{ fontSize: 40 }}>📍</Text>
+                            <Icon name="mapPin" size={40} color={C.orange} style={{ marginBottom: 6 }} />
                             <Text style={styles.stopsHeroTitle}>Rota Durakları</Text>
-                            <Text style={styles.stopsHeroSub}>"{baslik}" turuna durak ekle</Text>
+                            <Text style={styles.stopsHeroSub}>"{baslik}" tura durak ekle</Text>
                         </View>
 
                         {/* Mevcut duraklar */}
@@ -176,7 +184,12 @@ export default function CreateTourScreen({ navigation }) {
                                         <View style={{ flex: 1 }}>
                                             <Text style={styles.stopName}>{s.stopName || s.StopName}</Text>
                                             {(s.description || s.Description) ? <Text style={styles.stopDesc}>{s.description || s.Description}</Text> : null}
-                                            {(s.time || s.Time) ? <Text style={styles.stopTime}>🕐 {s.time || s.Time}</Text> : null}
+                                            {(s.time || s.Time) ? (
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                                                    <Icon name="clock" size={11} color={C.textMuted} />
+                                                    <Text style={styles.stopTime}>{s.time || s.Time}</Text>
+                                                </View>
+                                            ) : null}
                                         </View>
                                         {idx < stops.length - 1 && <View style={styles.stopConnector} />}
                                     </View>
@@ -187,9 +200,9 @@ export default function CreateTourScreen({ navigation }) {
                         {/* Yeni durak formu */}
                         <View style={styles.formCard}>
                             <Text style={styles.sectionLabel}>YENİ DURAK EKLE</Text>
-                            <Field label="DURAK ADI *" icon="📍" placeholder="Örn: Kavşak Kahvaltıcı" value={stopName} onChangeText={setStopName} maxLength={80} />
-                            <Field label="AÇIKLAMA" icon="📝" placeholder="Burada ne yapılacak?" value={stopDesc} onChangeText={setStopDesc} multiline maxLength={200} />
-                            <Field label="SAAT / SÜRE" icon="🕐" placeholder="Örn: 09:00 / 30 dk" value={stopTime} onChangeText={setStopTime} maxLength={30} />
+                            <Field label="DURAK ADI *" icon="mapPin" placeholder="Örn: Kavşak Kahvaltıcı" value={stopName} onChangeText={setStopName} maxLength={80} />
+                            <Field label="AÇIKLAMA" icon="description" placeholder="Burada ne yapılacak?" value={stopDesc} onChangeText={setStopDesc} multiline maxLength={200} />
+                            <Field label="SAAT / SÜRE" icon="clock" placeholder="Örn: 09:00 / 30 dk" value={stopTime} onChangeText={setStopTime} maxLength={30} />
                             <TouchableOpacity style={[styles.addStopBtn, isStopLoading && { opacity: 0.6 }]} onPress={handleAddStop} disabled={isStopLoading}>
                                 {isStopLoading ? <ActivityIndicator color="#FFF" size="small" /> : <Text style={styles.addStopBtnText}>+ Durak Ekle</Text>}
                             </TouchableOpacity>
@@ -212,7 +225,7 @@ export default function CreateTourScreen({ navigation }) {
             <StatusBar barStyle="light-content" backgroundColor={C.bg} />
             <View style={styles.topBar}>
                 <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-                    <Text style={styles.backBtnText}>←</Text>
+                    <Icon name="back" size={20} color={C.textPrimary} />
                 </TouchableOpacity>
                 <Text style={styles.topBarTitle}>Yeni Tur</Text>
                 <View style={{ width: 40 }} />
@@ -221,17 +234,19 @@ export default function CreateTourScreen({ navigation }) {
                 <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                     <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
                         <View style={styles.heroBox}>
-                            <View style={styles.heroIcon}><Text style={{ fontSize: 36 }}>🏍️</Text></View>
+                            <View style={styles.heroIcon}>
+                                <Icon name="motorcycle" size={36} color={C.orange} />
+                            </View>
                             <Text style={styles.heroTitle}>Tur Düzenle</Text>
                             <Text style={styles.heroSub}>Rotanı tanımla, diğer binicileri davet et</Text>
                         </View>
 
                         <View style={styles.formCard}>
                             <Text style={styles.sectionLabel}>TUR BİLGİLERİ</Text>
-                            <Field label="BAŞLIK" icon="🏆" placeholder="Örn: Karadeniz Kıyı Turu 2025" value={baslik} onChangeText={setBaslik} maxLength={80} />
-                            <Field label="ROTA" icon="📍" placeholder="Örn: İstanbul → Trabzon → Rize" value={rota} onChangeText={setRota} maxLength={150} />
-                            <Field label="TARİH (GG.AA.YYYY)" icon="📅" placeholder="Örn: 25.06.2025" value={tarih} onChangeText={setTarih} keyboardType="numbers-and-punctuation" maxLength={10} />
-                            <Field label="AÇIKLAMA" icon="📝" placeholder="Tur hakkında detaylar, buluşma noktası..." value={aciklama} onChangeText={setAciklama} multiline maxLength={500} />
+                            <Field label="BAŞLIK" icon="flag" placeholder="Örn: Karadeniz Kıyı Turu 2025" value={baslik} onChangeText={setBaslik} maxLength={80} />
+                            <Field label="ROTA" icon="mapPin" placeholder="Örn: İstanbul → Trabzon → Rize" value={rota} onChangeText={setRota} maxLength={150} />
+                            <Field label="TARİH (GG.AA.YYYY)" icon="calendar" placeholder="Örn: 25.06.2025" value={tarih} onChangeText={setTarih} keyboardType="numbers-and-punctuation" maxLength={10} />
+                            <Field label="AÇIKLAMA" icon="description" placeholder="Tur hakkında detaylar, buluşma noktası..." value={aciklama} onChangeText={setAciklama} multiline maxLength={500} />
                         </View>
 
                         <View style={styles.formCard}>
@@ -244,9 +259,9 @@ export default function CreateTourScreen({ navigation }) {
                                         <TouchableOpacity key={cat.key}
                                             style={[styles.categoryCard, isSelected && { backgroundColor: cat.bg, borderColor: cat.color, borderWidth: 1.5 }]}
                                             onPress={() => setKategori(cat.key)} activeOpacity={0.75}>
-                                            <Text style={styles.categoryCardIcon}>{cat.icon}</Text>
+                                            <Icon name={cat.iconName} size={24} color={isSelected ? cat.color : C.textSecondary} style={{ marginBottom: 6 }} />
                                             <Text style={[styles.categoryCardText, isSelected && { color: cat.color, fontWeight: '700' }]}>{cat.key}</Text>
-                                            {isSelected && <View style={[styles.checkDot, { backgroundColor: cat.color }]}><Text style={{ color: '#FFF', fontSize: 8, fontWeight: '700' }}>✓</Text></View>}
+                                            {isSelected && <View style={[styles.checkDot, { backgroundColor: cat.color }]}><Icon name="check" size={8} color="#FFF" /></View>}
                                         </TouchableOpacity>
                                     );
                                 })}
@@ -260,10 +275,23 @@ export default function CreateTourScreen({ navigation }) {
                                     <View style={[styles.previewStrip, { backgroundColor: CATEGORIES.find(c => c.key === kategori)?.color || C.orange }]} />
                                     <View style={{ flex: 1, padding: 14 }}>
                                         <Text style={styles.previewTitle} numberOfLines={1}>{baslik || 'Tur Başlığı'}</Text>
-                                        {rota ? <Text style={styles.previewRoute}>📍 {rota}</Text> : null}
+                                        {rota ? (
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 6 }}>
+                                                <Icon name="mapPin" size={12} color={C.textSecondary} />
+                                                <Text style={styles.previewRoute}>{rota}</Text>
+                                            </View>
+                                        ) : null}
                                         <View style={styles.previewMeta}>
-                                            <Text style={styles.previewMetaText}>{kategori ? `${CATEGORIES.find(c => c.key === kategori)?.icon} ${kategori}` : '🏍️ Kategori Seç'}</Text>
-                                            {tarih ? <Text style={styles.previewMetaText}>📅 {tarih}</Text> : null}
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                                <Icon name={kategori ? CATEGORIES.find(c => c.key === kategori)?.iconName : 'motorcycle'} size={11} color={C.textMuted} />
+                                                <Text style={styles.previewMetaText}>{kategori || 'Kategori Seç'}</Text>
+                                            </View>
+                                            {tarih ? (
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                                    <Icon name="calendar" size={11} color={C.textMuted} />
+                                                    <Text style={styles.previewMetaText}>{tarih}</Text>
+                                                </View>
+                                            ) : null}
                                         </View>
                                     </View>
                                 </View>
@@ -271,7 +299,8 @@ export default function CreateTourScreen({ navigation }) {
                         ) : null}
 
                         <View style={styles.nextHint}>
-                            <Text style={styles.nextHintText}>📍 Tur oluşturulduktan sonra rota durakları ekleyebileceksin</Text>
+                            <Icon name="mapPin" size={13} color={C.blue} style={{ marginRight: 6 }} />
+                            <Text style={styles.nextHintText}>Tur oluşturulduktan sonra rota durakları ekleyebileceksin</Text>
                         </View>
 
                         <TouchableOpacity style={[styles.createBtn, isLoading && styles.createBtnDisabled]} onPress={handleCreate} disabled={isLoading} activeOpacity={0.85}>

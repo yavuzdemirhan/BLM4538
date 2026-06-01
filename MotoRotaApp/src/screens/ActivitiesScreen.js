@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { toursAPI, participationsAPI } from '../services/api';
+import { useAlert } from '../components/CustomAlert';
+import Icon from '../components/Icons';
 
 const C = {
     bg: '#0A0A0F', surface: '#13131A', surfaceHigh: '#1C1C28',
@@ -25,7 +27,7 @@ const TABS = [
     { key: 'katildiklarim',   label: 'Katıldıklarım',   icon: '✅' },
 ];
 
-export function MiniTourCard({ tour, onPress }) {
+export function MiniTourCard({ tour, onPress, onDelete }) {
     const baslik = tour.Baslik || tour.baslik || tour.title || '';
     const rota = tour.Rota || tour.rota || '';
     const kategori = tour.MotosikletKategorisi || tour.motosikletKategorisi || '';
@@ -35,22 +37,30 @@ export function MiniTourCard({ tour, onPress }) {
     const tourId = tour.Id || tour.id || tour.tourId || tour.TourId;
 
     return (
-        <TouchableOpacity style={styles.miniCard} onPress={() => onPress && onPress(tourId)} activeOpacity={0.8}>
-            <View style={[styles.miniCardStrip, { backgroundColor: cfg.color }]} />
-            <View style={styles.miniCardBody}>
-                <View style={styles.miniCardTop}>
-                    <Text style={{ fontSize: 14 }}>{cfg.icon}</Text>
-                    <Text style={[styles.miniCardKat, { color: cfg.color }]}>{kategori || 'Genel'}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+            <TouchableOpacity style={styles.miniCard} onPress={() => onPress && onPress(tourId)} activeOpacity={0.8}>
+                <View style={[styles.miniCardStrip, { backgroundColor: cfg.color }]} />
+                <View style={styles.miniCardBody}>
+                    <View style={styles.miniCardTop}>
+                        <Text style={{ fontSize: 14 }}>{cfg.icon}</Text>
+                        <Text style={[styles.miniCardKat, { color: cfg.color }]}>{kategori || 'Genel'}</Text>
+                    </View>
+                    <Text style={styles.miniCardTitle} numberOfLines={1}>{baslik || 'Başlıksız Tur'}</Text>
+                    {rota ? <Text style={styles.miniCardRota} numberOfLines={1}>📍 {rota}</Text> : null}
+                    {dateStr ? <Text style={styles.miniCardDate}>📅 {dateStr}</Text> : null}
                 </View>
-                <Text style={styles.miniCardTitle} numberOfLines={1}>{baslik || 'Başlıksız Tur'}</Text>
-                {rota ? <Text style={styles.miniCardRota} numberOfLines={1}>📍 {rota}</Text> : null}
-                {dateStr ? <Text style={styles.miniCardDate}>📅 {dateStr}</Text> : null}
-            </View>
-        </TouchableOpacity>
+            </TouchableOpacity>
+            {onDelete && (
+                <TouchableOpacity style={styles.deleteBtn} onPress={() => onDelete(tourId)}>
+                    <Icon name="trash" size={16} color={C.red} />
+                </TouchableOpacity>
+            )}
+        </View>
     );
 }
 
 export default function ActivitiesScreen({ navigation }) {
+    const alert = useAlert();
     const [activeTab, setActiveTab] = useState('olusturduklarim');
     const [myTours, setMyTours] = useState([]);
     const [joinedTours, setJoinedTours] = useState([]);
@@ -76,6 +86,38 @@ export default function ActivitiesScreen({ navigation }) {
             } catch (_) {}
         }
         setIsLoading(false);
+    };
+
+    const handleDeleteTour = (tourId) => {
+        alert.show({
+            icon: 'trash',
+            title: 'Turu Sil',
+            message: 'Bu turu tamamen silmek istediğine emin misin? Bu işlem geri alınamaz.',
+            buttons: [
+                { text: 'İptal', style: 'cancel' },
+                {
+                    text: 'Sil',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await toursAPI.delete(tourId);
+                            setMyTours(prev => prev.filter(t => (t.id || t.Id) !== tourId));
+                            alert.show({
+                                icon: 'success',
+                                title: 'Silindi',
+                                message: 'Tur başarıyla silindi.',
+                            });
+                        } catch (_) {
+                            alert.show({
+                                icon: 'error',
+                                title: 'Hata',
+                                message: 'Tur silinirken bir hata oluştu.',
+                            });
+                        }
+                    }
+                }
+            ]
+        });
     };
 
     const goToTour = (tourId) => {
@@ -126,7 +168,12 @@ export default function ActivitiesScreen({ navigation }) {
                 ) : (
                     <View style={{ paddingHorizontal: 16 }}>
                         {currentData.map((item, idx) => (
-                            <MiniTourCard key={item.Id || item.id || item.tourId || idx} tour={item} onPress={goToTour} />
+                            <MiniTourCard 
+                                key={item.Id || item.id || item.tourId || idx} 
+                                tour={item} 
+                                onPress={goToTour} 
+                                onDelete={activeTab === 'olusturduklarim' ? handleDeleteTour : undefined}
+                            />
                         ))}
                     </View>
                 )}
@@ -152,7 +199,7 @@ const styles = StyleSheet.create({
     createTourBtn: { backgroundColor: C.orange, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12, shadowColor: C.orange, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 8, elevation: 6 },
     createTourBtnText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
 
-    miniCard: { flexDirection: 'row', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, marginBottom: 10, overflow: 'hidden' },
+    miniCard: { flexDirection: 'row', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, overflow: 'hidden' },
     miniCardStrip: { width: 4 },
     miniCardBody: { flex: 1, padding: 14 },
     miniCardTop: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
@@ -160,4 +207,5 @@ const styles = StyleSheet.create({
     miniCardTitle: { color: C.textPrimary, fontSize: 15, fontWeight: '700', marginBottom: 4 },
     miniCardRota: { color: C.textSecondary, fontSize: 12, marginBottom: 2 },
     miniCardDate: { color: C.textMuted, fontSize: 11 },
+    deleteBtn: { width: 44, height: 44, backgroundColor: C.redDim, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginLeft: 10 },
 });

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAlert } from '../components/CustomAlert';
+import Icon from '../components/Icons';
 import {
     View,
     Text,
@@ -8,7 +10,6 @@ import {
     SafeAreaView,
     StatusBar,
     ActivityIndicator,
-    Alert,
     Animated,
     Share,
     ImageBackground,
@@ -90,7 +91,7 @@ function InfoRow({ icon, label, value, valueColor }) {
     return (
         <View style={styles.infoRow}>
             <View style={styles.infoIconBox}>
-                <Text style={{ fontSize: 16 }}>{icon}</Text>
+                {typeof icon === 'string' ? <Text style={{ fontSize: 16 }}>{icon}</Text> : icon}
             </View>
             <View style={{ flex: 1 }}>
                 <Text style={styles.infoLabel}>{label}</Text>
@@ -102,6 +103,7 @@ function InfoRow({ icon, label, value, valueColor }) {
 
 // ─── Ana Bileşen ──────────────────────────────────────────────────────────────
 export default function TourDetailScreen({ route, navigation }) {
+    const alert = useAlert();
     const { tourId } = route.params;
     const [tour, setTour] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -114,6 +116,7 @@ export default function TourDetailScreen({ route, navigation }) {
     const [isRatingLoading, setIsRatingLoading] = useState(false);
     const [stops, setStops] = useState([]);
     const [isOwner, setIsOwner] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [newStopName, setNewStopName] = useState('');
     const [newStopDesc, setNewStopDesc] = useState('');
     const [newStopTime, setNewStopTime] = useState('');
@@ -138,7 +141,9 @@ export default function TourDetailScreen({ route, navigation }) {
 
     const loadAll = async () => {
         const uname = await AsyncStorage.getItem('username') || '';
+        const role = await AsyncStorage.getItem('userRole') || 'User';
         setUsername(uname);
+        setIsAdmin(role === 'Admin');
 
         try {
             const [tourRes, ratingRes, stopsRes, commentsRes] = await Promise.all([
@@ -174,7 +179,7 @@ export default function TourDetailScreen({ route, navigation }) {
                 }
             }
         } catch (e) {
-            Alert.alert('Hata', 'Tur bilgileri yüklenemedi.');
+            alert.show({ icon: 'error', title: 'Hata', message: 'Tur bilgileri yüklenemedi.' });
         } finally {
             setIsLoading(false);
             Animated.parallel([
@@ -185,7 +190,7 @@ export default function TourDetailScreen({ route, navigation }) {
     };
 
     const handleAddStop = async () => {
-        if (!newStopName.trim()) { Alert.alert('Eksik', 'Durak adı gerekli.'); return; }
+        if (!newStopName.trim()) { alert.show({ icon: 'warning', title: 'Eksik', message: 'Durak adı gerekli.' }); return; }
         setIsStopLoading(true);
         try {
             const res = await routeStopsAPI.addStop({
@@ -196,25 +201,64 @@ export default function TourDetailScreen({ route, navigation }) {
             setStops(prev => [...prev, res.data]);
             setNewStopName(''); setNewStopDesc(''); setNewStopTime('');
             setShowAddStop(false);
-        } catch (_) { Alert.alert('Hata', 'Durak eklenemedi.'); }
+        } catch (_) { alert.show({ icon: 'error', title: 'Hata', message: 'Durak eklenemedi.' }); }
         finally { setIsStopLoading(false); }
     };
 
+    const handleDeleteTour = () => {
+        alert.show({
+            icon: 'trash',
+            title: 'Turu Sil',
+            message: 'Bu turu tamamen silmek istediğine emin misin? Bu işlem geri alınamaz.',
+            buttons: [
+                { text: 'İptal', style: 'cancel' },
+                {
+                    text: 'Sil',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await toursAPI.delete(tourId);
+                            alert.show({
+                                icon: 'success',
+                                title: 'Silindi',
+                                message: 'Tur başarıyla silindi.',
+                                buttons: [
+                                    { text: 'Tamam', onPress: () => navigation.goBack() }
+                                ]
+                            });
+                        } catch (_) {
+                            alert.show({
+                                icon: 'error',
+                                title: 'Hata',
+                                message: 'Tur silinirken bir hata oluştu.',
+                            });
+                        }
+                    }
+                }
+            ]
+        });
+    };
+
     const handleDeleteStop = (stopId) => {
-        Alert.alert('Durağı Sil', 'Bu durağı silmek istediğine emin misin?', [
-            { text: 'İptal', style: 'cancel' },
-            { text: 'Sil', style: 'destructive', onPress: async () => {
-                try {
-                    await routeStopsAPI.deleteStop(stopId);
-                    setStops(prev => prev.filter(s => (s.id || s.Id) !== stopId));
-                } catch (_) { Alert.alert('Hata', 'Durak silinemedi.'); }
-            }},
-        ]);
+        alert.show({
+            icon: 'trash',
+            title: 'Durağı Sil',
+            message: 'Bu durağı silmek istediğine emin misin?',
+            buttons: [
+                { text: 'İptal', style: 'cancel' },
+                { text: 'Sil', style: 'destructive', onPress: async () => {
+                    try {
+                        await routeStopsAPI.deleteStop(stopId);
+                        setStops(prev => prev.filter(s => (s.id || s.Id) !== stopId));
+                    } catch (_) { alert.show({ icon: 'error', title: 'Hata', message: 'Durak silinemedi.' }); }
+                }},
+            ],
+        });
     };
 
     const handleJoinLeave = async () => {
         if (!username) {
-            Alert.alert('Giriş Gerekli', 'Tura katılmak için giriş yapman gerekiyor.');
+            alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Tura katılmak için giriş yapman gerekiyor.' });
             return;
         }
         setIsJoinLoading(true);
@@ -222,15 +266,15 @@ export default function TourDetailScreen({ route, navigation }) {
             if (isJoined) {
                 await participationsAPI.leave(tourId, username);
                 setIsJoined(false);
-                Alert.alert('Ayrıldın', 'Turdan başarıyla ayrıldın. 🏍️');
+                alert.show({ icon: 'info', title: 'Ayrıldın', message: 'Turdan başarıyla ayrıldın.' });
             } else {
                 await participationsAPI.join(tourId, username, tour?.Baslik || tour?.baslik || 'Motorsiklet Turu');
                 setIsJoined(true);
-                Alert.alert('Katıldın! 🎉', 'Tura başarıyla kaydoldun. Hazır ol!');
+                alert.show({ icon: 'party', title: 'Katıldın!', message: 'Tura başarıyla kaydoldun. Hazır ol!' });
             }
         } catch (e) {
             const msg = e.response?.data || 'Bir hata oluştu.';
-            Alert.alert('Hata', typeof msg === 'string' ? msg : JSON.stringify(msg));
+            alert.show({ icon: 'error', title: 'Hata', message: typeof msg === 'string' ? msg : JSON.stringify(msg) });
         } finally {
             setIsJoinLoading(false);
         }
@@ -238,7 +282,7 @@ export default function TourDetailScreen({ route, navigation }) {
 
     const handleToggleFavorite = async () => {
         if (!username) {
-            Alert.alert('Giriş Gerekli', 'Favorilere eklemek için giriş yapman gerekiyor.');
+            alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Favorilere eklemek için giriş yapman gerekiyor.' });
             return;
         }
         const prev = isFavorite;
@@ -257,7 +301,7 @@ export default function TourDetailScreen({ route, navigation }) {
 
     const handleRating = async (star) => {
         if (!username) {
-            Alert.alert('Giriş Gerekli', 'Puanlamak için giriş yapman gerekiyor.');
+            alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Puanlamak için giriş yapman gerekiyor.' });
             return;
         }
         setIsRatingLoading(true);
@@ -267,7 +311,7 @@ export default function TourDetailScreen({ route, navigation }) {
             const res = await ratingsAPI.getAverage(tourId);
             setAvgRating(res.data);
         } catch (_) {
-            Alert.alert('Hata', 'Puanın kaydedilemedi.');
+            alert.show({ icon: 'error', title: 'Hata', message: 'Puanın kaydedilemedi.' });
         } finally {
             setIsRatingLoading(false);
         }
@@ -276,7 +320,7 @@ export default function TourDetailScreen({ route, navigation }) {
     // ─── Takip ──────────────────────────────────────────────────────────────────
     const handleFollow = async () => {
         if (!username) {
-            Alert.alert('Giriş Gerekli', 'Takip etmek için giriş yapman gerekiyor.');
+            alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Takip etmek için giriş yapman gerekiyor.' });
             return;
         }
         const prev = isFollowing;
@@ -286,7 +330,7 @@ export default function TourDetailScreen({ route, navigation }) {
             await followsAPI.toggle(username, tourOwner);
         } catch (_) {
             setIsFollowing(prev);
-            Alert.alert('Hata', 'İşlem gerçekleştirilemedi.');
+            alert.show({ icon: 'error', title: 'Hata', message: 'İşlem gerçekleştirilemedi.' });
         } finally {
             setIsFollowLoading(false);
         }
@@ -296,7 +340,7 @@ export default function TourDetailScreen({ route, navigation }) {
     const handleSendComment = async () => {
         if (!commentText.trim()) return;
         if (!username) {
-            Alert.alert('Giriş Gerekli', 'Yorum yapmak için giriş yapman gerekiyor.');
+            alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Yorum yapmak için giriş yapman gerekiyor.' });
             return;
         }
         setIsCommentLoading(true);
@@ -306,23 +350,28 @@ export default function TourDetailScreen({ route, navigation }) {
             setCommentSent(true);
         } catch (e) {
             const msg = e.response?.data;
-            if (typeof msg === 'string') Alert.alert('Hata', msg);
-            else Alert.alert('Hata', 'Yorum gönderilemedi.');
+            if (typeof msg === 'string') alert.show({ icon: 'error', title: 'Hata', message: msg });
+            else alert.show({ icon: 'error', title: 'Hata', message: 'Yorum gönderilemedi.' });
         } finally {
             setIsCommentLoading(false);
         }
     };
 
     const handleDeleteComment = (commentId) => {
-        Alert.alert('Yorumu Sil', 'Bu yorumu silmek istediğine emin misin?', [
-            { text: 'İptal', style: 'cancel' },
-            { text: 'Sil', style: 'destructive', onPress: async () => {
-                try {
-                    await commentsAPI.deleteComment(commentId);
-                    setComments(prev => prev.filter(c => (c.id || c.Id) !== commentId));
-                } catch (_) { Alert.alert('Hata', 'Yorum silinemedi.'); }
-            }},
-        ]);
+        alert.show({
+            icon: 'trash',
+            title: 'Yorumu Sil',
+            message: 'Bu yorumu silmek istediğine emin misin?',
+            buttons: [
+                { text: 'İptal', style: 'cancel' },
+                { text: 'Sil', style: 'destructive', onPress: async () => {
+                    try {
+                        await commentsAPI.deleteComment(commentId);
+                        setComments(prev => prev.filter(c => (c.id || c.Id) !== commentId));
+                    } catch (_) { alert.show({ icon: 'error', title: 'Hata', message: 'Yorum silinemedi.' }); }
+                }},
+            ],
+        });
     };
 
     const handleShare = async () => {
@@ -351,10 +400,10 @@ export default function TourDetailScreen({ route, navigation }) {
             <SafeAreaView style={styles.container}>
                 <StatusBar barStyle="light-content" backgroundColor={C.bg} />
                 <View style={styles.loadingBox}>
-                    <Text style={{ fontSize: 48 }}>😕</Text>
+                    <Icon name="warning" size={48} color={C.textSecondary} />
                     <Text style={styles.loadingText}>Tur bulunamadı.</Text>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                        <Text style={styles.backBtnText}>← Geri Dön</Text>
+                        <Text style={styles.backBtnText}><Icon name="back" size={14} color="#FFF" /> Geri Dön</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaView>
@@ -390,12 +439,23 @@ export default function TourDetailScreen({ route, navigation }) {
                     onPress={() => navigation.goBack()}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                    <Text style={styles.iconBtnText}>←</Text>
+                    <Icon name="back" size={20} color={C.textPrimary} />
                 </TouchableOpacity>
                 <Text style={styles.topBarTitle} numberOfLines={1}>Tur Detayı</Text>
-                <TouchableOpacity style={styles.iconBtn} onPress={handleShare}>
-                    <Text style={{ fontSize: 18 }}>📤</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    {(isOwner || isAdmin) && (
+                        <TouchableOpacity
+                            style={[styles.iconBtn, { backgroundColor: C.redDim }]}
+                            onPress={handleDeleteTour}
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        >
+                            <Icon name="trash" size={18} color={C.red} />
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity style={styles.iconBtn} onPress={handleShare}>
+                        <Icon name="share" size={18} color={C.textPrimary} />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             <Animated.ScrollView
@@ -419,7 +479,7 @@ export default function TourDetailScreen({ route, navigation }) {
                                     </Text>
                                 </View>
                                 <TouchableOpacity onPress={handleToggleFavorite} style={styles.favBtn}>
-                                    <Text style={{ fontSize: 24 }}>{isFavorite ? '❤️' : '🤍'}</Text>
+                                    <Icon name={isFavorite ? 'heart' : 'heartOutline'} size={24} color={isFavorite ? C.red : C.textSecondary} />
                                 </TouchableOpacity>
                             </View>
 
@@ -438,12 +498,12 @@ export default function TourDetailScreen({ route, navigation }) {
                             {/* Görüntülenme */}
                             <View style={styles.heroMeta}>
                                 <View style={styles.heroMetaItem}>
-                                    <Text style={styles.heroMetaIcon}>👁</Text>
+                                    <Icon name="eye" size={14} color={C.textSecondary} />
                                     <Text style={styles.heroMetaText}>{viewCount} görüntülenme</Text>
                                 </View>
                                 <View style={styles.heroDivider} />
                                 <View style={[styles.heroMetaItem, { flex: 1 }]}>
-                                    <Text style={styles.heroMetaIcon}>🏍️</Text>
+                                    <Icon name="motorcycle" size={14} color={C.textSecondary} />
                                     <Text style={[styles.heroMetaText, { flex: 1 }]} numberOfLines={1} ellipsizeMode="tail">@{olusturanKisi}</Text>
                                 </View>
                                 {canFollow && (
@@ -474,7 +534,7 @@ export default function TourDetailScreen({ route, navigation }) {
                 {/* Katıl / Ayrıl / Kaptan Rozeti */}
                 {isOwner ? (
                     <View style={styles.captainBadge}>
-                        <Text style={styles.captainBadgeIcon}>🏁</Text>
+                        <Icon name="flag" size={20} color={C.green} />
                         <Text style={styles.captainBadgeText}>Bu Turun Kaptanısınız</Text>
                     </View>
                 ) : (
@@ -491,9 +551,12 @@ export default function TourDetailScreen({ route, navigation }) {
                         {isJoinLoading ? (
                             <ActivityIndicator color="#FFF" size="small" />
                         ) : (
-                            <Text style={styles.joinBtnText}>
-                                {isJoined ? '🚪  Turdan Ayrıl' : '🏁  Tura Katıl'}
-                            </Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <Icon name={isJoined ? 'door' : 'flag'} size={18} color="#FFF" />
+                                <Text style={styles.joinBtnText}>
+                                    {isJoined ? 'Turdan Ayrıl' : 'Tura Katıl'}
+                                </Text>
+                            </View>
                         )}
                     </TouchableOpacity>
                 )}
@@ -502,9 +565,9 @@ export default function TourDetailScreen({ route, navigation }) {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Tur Bilgileri</Text>
                     <View style={styles.sectionCard}>
-                        <InfoRow icon="📅" label="Tarih" value={dateStr} />
+                        <InfoRow icon={<Icon name="calendar" size={16} color={C.textSecondary} />} label="Tarih" value={dateStr} />
                         <View style={styles.rowDivider} />
-                        <InfoRow icon="📍" label="Rota" value={rota || 'Belirtilmemiş'} />
+                        <InfoRow icon={<Icon name="mapPin" size={16} color={C.textSecondary} />} label="Rota" value={rota || 'Belirtilmemiş'} />
                         <View style={styles.rowDivider} />
                         <InfoRow
                             icon={cfg.icon}
@@ -514,7 +577,7 @@ export default function TourDetailScreen({ route, navigation }) {
                         />
                         <View style={styles.rowDivider} />
                         <InfoRow
-                            icon="👤"
+                            icon={<Icon name="person" size={16} color={C.textSecondary} />}
                             label="Oluşturan"
                             value={`@${olusturanKisi}`}
                             valueColor={C.orange}
@@ -585,7 +648,7 @@ export default function TourDetailScreen({ route, navigation }) {
 
                     {stops.length === 0 ? (
                         <View style={[styles.sectionCard, { padding: 20, alignItems: 'center' }]}>
-                            <Text style={{ fontSize: 32, marginBottom: 8 }}>🗺️</Text>
+                            <Icon name="route" size={32} color={C.textSecondary} style={{ marginBottom: 8 }} />
                             <Text style={{ color: C.textSecondary, fontSize: 14 }}>Henüz durak eklenmemiş</Text>
                         </View>
                     ) : (
@@ -604,7 +667,7 @@ export default function TourDetailScreen({ route, navigation }) {
                                             <View style={{ flex: 1 }}>
                                                 <Text style={styles.stopName}>{sName}</Text>
                                                 {sDesc ? <Text style={styles.stopDesc}>{sDesc}</Text> : null}
-                                                {sTime ? <Text style={styles.stopTime}>🕐 {sTime}</Text> : null}
+                                                {sTime ? <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Icon name="clock" size={11} color={C.textMuted} /><Text style={styles.stopTime}>{sTime}</Text></View> : null}
                                             </View>
                                             {isOwner && (
                                                 <TouchableOpacity
@@ -612,7 +675,7 @@ export default function TourDetailScreen({ route, navigation }) {
                                                     style={styles.stopDeleteBtn}
                                                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                                 >
-                                                    <Text style={{ color: C.red, fontSize: 16 }}>🗑</Text>
+                                                    <Icon name="trash" size={16} color={C.red} />
                                                 </TouchableOpacity>
                                             )}
                                         </View>
@@ -665,7 +728,7 @@ export default function TourDetailScreen({ route, navigation }) {
                     {username ? (
                         commentSent ? (
                             <View style={[styles.sectionCard, styles.commentSentBox]}>
-                                <Text style={{ fontSize: 24, marginBottom: 6 }}>⏳</Text>
+                                <Icon name="pending" size={24} color={C.textSecondary} style={{ marginBottom: 6 }} />
                                 <Text style={styles.commentSentText}>Yorumunuz admin onayına gönderildi.</Text>
                             </View>
                         ) : (
@@ -690,7 +753,7 @@ export default function TourDetailScreen({ route, navigation }) {
                                 >
                                     {isCommentLoading
                                         ? <ActivityIndicator color="#FFF" size="small" />
-                                        : <Text style={styles.commentSendBtnText}>✉️  Yorum Gönder</Text>
+                                        : <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}><Icon name="mail" size={14} color="#FFF" /><Text style={styles.commentSendBtnText}>Yorum Gönder</Text></View>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -710,7 +773,7 @@ export default function TourDetailScreen({ route, navigation }) {
                     {/* Yorum Listesi */}
                     {comments.length === 0 ? (
                         <View style={[styles.sectionCard, { padding: 20, alignItems: 'center' }]}>
-                            <Text style={{ fontSize: 28, marginBottom: 6 }}>💬</Text>
+                            <Icon name="comment" size={28} color={C.textSecondary} style={{ marginBottom: 6 }} />
                             <Text style={{ color: C.textSecondary, fontSize: 14 }}>Henüz onaylanmış yorum yok</Text>
                         </View>
                     ) : (
@@ -744,7 +807,7 @@ export default function TourDetailScreen({ route, navigation }) {
                                                     style={styles.commentDeleteBtn}
                                                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                                 >
-                                                    <Text style={{ color: C.red, fontSize: 14 }}>🗑</Text>
+                                                    <Icon name="trash" size={14} color={C.red} />
                                                 </TouchableOpacity>
                                             )}
                                         </View>
@@ -759,7 +822,7 @@ export default function TourDetailScreen({ route, navigation }) {
                 {/* Katılım durumu */}
                 {isJoined && (
                     <View style={[styles.statusBanner, { backgroundColor: C.greenDim, borderColor: C.green + '40' }]}>
-                        <Text style={{ fontSize: 20 }}>✅</Text>
+                        <Icon name="check" size={20} color={C.green} />
                         <Text style={[styles.statusBannerText, { color: C.green }]}>
                             Bu tura kayıtlısın! Hazırlıkları tamamla.
                         </Text>

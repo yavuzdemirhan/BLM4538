@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,
-    StatusBar, ScrollView, ActivityIndicator, Alert, Image,
+    StatusBar, ScrollView, ActivityIndicator, Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { garageAPI } from '../services/api';
+import { useAlert } from '../components/CustomAlert';
+import Icon from '../components/Icons';
 
 const C = {
     bg: '#0A0A0F', surface: '#13131A', surfaceHigh: '#1C1C28',
@@ -14,6 +16,7 @@ const C = {
 };
 
 export default function GarageScreen({ navigation }) {
+    const alert = useAlert();
     const [username, setUsername] = useState('');
     const [bikes, setBikes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -46,14 +49,22 @@ export default function GarageScreen({ navigation }) {
 
     const handleAddBike = async () => {
         if (!brand.trim() || !model.trim() || !year.trim() || !engineCc.trim()) {
-            Alert.alert('Eksik Alan', 'Lütfen tüm zorunlu alanları doldurun.');
+            alert.show({
+                icon: 'warning',
+                title: 'Eksik Alan',
+                message: 'Lütfen tüm zorunlu alanları doldurun.',
+            });
             return;
         }
 
         const yearNum = parseInt(year, 10);
         const ccNum = parseInt(engineCc, 10);
         if (isNaN(yearNum) || isNaN(ccNum)) {
-            Alert.alert('Hatalı Format', 'Yıl ve CC sadece sayı olmalıdır.');
+            alert.show({
+                icon: 'warning',
+                title: 'Hatalı Format',
+                message: 'Yıl ve CC sadece sayı olmalıdır.',
+            });
             return;
         }
 
@@ -71,24 +82,41 @@ export default function GarageScreen({ navigation }) {
             setIsAddMode(false);
             setBrand(''); setModel(''); setYear(''); setEngineCc(''); setImageUrl('');
         } catch (_) {
-            Alert.alert('Hata', 'Motor eklenemedi.');
+            alert.show({
+                icon: 'error',
+                title: 'Hata',
+                message: 'Motor eklenemedi.',
+            });
         } finally {
             setIsAdding(false);
         }
     };
 
     const handleDeleteBike = (id) => {
-        Alert.alert('Motoru Sil', 'Bu motoru garajından silmek istediğine emin misin?', [
-            { text: 'İptal', style: 'cancel' },
-            { text: 'Sil', style: 'destructive', onPress: async () => {
-                try {
-                    await garageAPI.deleteBike(id);
-                    setBikes(prev => prev.filter(b => (b.id || b.Id) !== id));
-                } catch (_) {
-                    Alert.alert('Hata', 'Motor silinemedi.');
-                }
-            }},
-        ]);
+        alert.show({
+            icon: 'trash',
+            title: 'Motoru Sil',
+            message: 'Bu motoru garajından silmek istediğine emin misin?',
+            buttons: [
+                { text: 'İptal', style: 'cancel' },
+                {
+                    text: 'Sil',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await garageAPI.deleteBike(id);
+                            setBikes(prev => prev.filter(b => (b.id || b.Id) !== id));
+                        } catch (_) {
+                            alert.show({
+                                icon: 'error',
+                                title: 'Hata',
+                                message: 'Motor silinemedi.',
+                            });
+                        }
+                    },
+                },
+            ],
+        });
     };
 
     return (
@@ -98,7 +126,7 @@ export default function GarageScreen({ navigation }) {
             {/* Top Bar */}
             <View style={styles.topBar}>
                 <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-                    <Text style={styles.backBtnText}>←</Text>
+                    <Icon name="back" size={20} color={C.textPrimary} />
                 </TouchableOpacity>
                 <Text style={styles.topBarTitle}>Garajım</Text>
                 <TouchableOpacity
@@ -113,7 +141,7 @@ export default function GarageScreen({ navigation }) {
                 
                 {/* Hero */}
                 <View style={styles.hero}>
-                    <Text style={{ fontSize: 48, marginBottom: 8 }}>🏍️</Text>
+                    <Icon name="motorcycle" size={48} color={C.orange} style={{ marginBottom: 8 }} />
                     <Text style={styles.heroTitle}>Garaj</Text>
                     <Text style={styles.heroSub}>{username} adlı kullanıcının motorları</Text>
                 </View>
@@ -160,7 +188,7 @@ export default function GarageScreen({ navigation }) {
                     <ActivityIndicator size="large" color={C.orange} style={{ marginTop: 40 }} />
                 ) : bikes.length === 0 && !isAddMode ? (
                     <View style={styles.emptyBox}>
-                        <Text style={{ fontSize: 40, marginBottom: 12 }}>🕸️</Text>
+                        <Icon name="motorcycle" size={40} color={C.textMuted} style={{ marginBottom: 12 }} />
                         <Text style={styles.emptyText}>Garajın şu an boş.</Text>
                         <Text style={styles.emptySub}>Hemen ilk motorunu ekle!</Text>
                     </View>
@@ -181,7 +209,7 @@ export default function GarageScreen({ navigation }) {
                                             <Image source={{ uri: bImg }} style={styles.bikeImage} />
                                         ) : (
                                             <View style={styles.bikeImagePlaceholder}>
-                                                <Text style={{ fontSize: 32 }}>🏍️</Text>
+                                                <Icon name="motorcycle" size={32} color={C.textMuted} />
                                             </View>
                                         )}
                                     </View>
@@ -192,16 +220,22 @@ export default function GarageScreen({ navigation }) {
                                         
                                         <View style={styles.bikeSpecs}>
                                             <View style={styles.specBadge}>
-                                                <Text style={styles.specBadgeText}>📅 {bYear}</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                                    <Icon name="calendar" size={11} color={C.textSecondary} />
+                                                    <Text style={styles.specBadgeText}>{bYear}</Text>
+                                                </View>
                                             </View>
                                             <View style={styles.specBadge}>
-                                                <Text style={styles.specBadgeText}>⚙️ {bCc} cc</Text>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                                    <Text style={{ fontSize: 11 }}>⚙️</Text>
+                                                    <Text style={styles.specBadgeText}>{bCc} cc</Text>
+                                                </View>
                                             </View>
                                         </View>
                                     </View>
 
                                     <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDeleteBike(bId)}>
-                                        <Text style={{ color: C.red, fontSize: 16 }}>🗑</Text>
+                                        <Icon name="trash" size={16} color={C.red} />
                                     </TouchableOpacity>
                                 </View>
                             );

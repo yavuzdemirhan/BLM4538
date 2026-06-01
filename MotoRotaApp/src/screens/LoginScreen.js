@@ -8,7 +8,6 @@ import {
     SafeAreaView,
     KeyboardAvoidingView,
     Platform,
-    Alert,
     ActivityIndicator,
     ScrollView,
     Animated,
@@ -16,6 +15,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI } from '../services/api';
+import { useAlert } from '../components/CustomAlert';
 
 const COLORS = {
     bg: '#0A0A0F',
@@ -91,6 +91,7 @@ export default function LoginScreen({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(30)).current;
+    const alert = useAlert();
 
     useEffect(() => {
         Animated.parallel([
@@ -101,7 +102,7 @@ export default function LoginScreen({ navigation }) {
 
     const handleLogin = async () => {
         if (!email.trim() || !password) {
-            Alert.alert('Eksik Bilgi', 'E-posta ve şifre alanlarını doldurman gerekiyor.');
+            alert.show({ icon: 'warning', title: 'Eksik Bilgi', message: 'E-posta ve şifre alanlarını doldurman gerekiyor.' });
             return;
         }
 
@@ -114,14 +115,10 @@ export default function LoginScreen({ navigation }) {
             await AsyncStorage.setItem('username', username || '');
             await AsyncStorage.setItem('userRole', role || 'User');
 
-            Alert.alert(
-                'Giriş Başarılı! 🏍️',
-                `Hoş geldin, ${username || email}! Motor çalıştı, yola hazırsın.`,
-                [{ text: 'Haydi Gidelim!', onPress: () => navigation.navigate('MainTabs') }]
-            );
+            alert.show({ icon: 'success', title: 'Giriş Başarılı!', message: `Hoş geldin, ${username || email}! Motor çalıştı, yola hazırsın.`, buttons: [{ text: 'Haydi Gidelim!', onPress: () => navigation.navigate('MainTabs') }] });
         } catch (error) {
             const msg = error.response?.data?.message || 'E-posta veya şifre hatalı.';
-            Alert.alert('Giriş Başarısız', msg);
+            alert.show({ icon: 'error', title: 'Giriş Başarısız', message: msg });
         } finally {
             setIsLoading(false);
         }

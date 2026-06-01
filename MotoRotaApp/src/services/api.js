@@ -145,6 +145,14 @@ export const commentsAPI = {
     /** Yorum sil (auth gerekli) */
     deleteComment: (id) =>
         apiClient.delete(`/Comments/${id}`),
+
+    /** Onay bekleyen yorumları listele (Admin) */
+    getPending: () =>
+        apiClient.get('/Comments/pending'),
+
+    /** Yorumu onayla (Admin) */
+    approve: (id) =>
+        apiClient.post(`/Comments/approve/${id}`),
 };
 
 // ─── Follows ──────────────────────────────────────────────────────────────────

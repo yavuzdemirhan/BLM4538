@@ -11,12 +11,12 @@ import {
     ActivityIndicator,
     TextInput,
     Animated,
-    Alert,
-    Image,
     ImageBackground,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { toursAPI, favoritesAPI } from '../services/api';
+import { useAlert } from '../components/CustomAlert';
+import Icon from '../components/Icons';
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const C = {
@@ -41,16 +41,16 @@ const C = {
 
 // ─── Kategori renk eşleşmesi ──────────────────────────────────────────────────
 const CATEGORY_CONFIG = {
-    'Sport': { color: C.orange, bg: C.orangeDim, icon: '🏎️' },
-    'Naked': { color: C.purple, bg: C.purpleDim, icon: '⚡' },
-    'Adventure': { color: C.green, bg: C.greenDim, icon: '🏔️' },
-    'Touring': { color: C.blue, bg: C.blueDim, icon: '🛣️' },
-    'Cruiser': { color: C.yellow, bg: C.yellowDim, icon: '🌅' },
-    'Enduro': { color: '#F87171', bg: '#F8717120', icon: '🌲' },
+    'Sport': { color: C.orange, bg: C.orangeDim, icon: '🏎️', iconName: 'sport' },
+    'Naked': { color: C.purple, bg: C.purpleDim, icon: '⚡', iconName: 'naked' },
+    'Adventure': { color: C.green, bg: C.greenDim, icon: '🏔️', iconName: 'adventure' },
+    'Touring': { color: C.blue, bg: C.blueDim, icon: '🛣️', iconName: 'touring' },
+    'Cruiser': { color: C.yellow, bg: C.yellowDim, icon: '🌅', iconName: 'cruiser' },
+    'Enduro': { color: '#F87171', bg: '#F8717120', icon: '🌲', iconName: 'enduro' },
 };
 
 function getCategoryConfig(cat) {
-    return CATEGORY_CONFIG[cat] || { color: C.textSecondary, bg: C.surfaceHigh, icon: '🏍️' };
+    return CATEGORY_CONFIG[cat] || { color: C.textSecondary, bg: C.surfaceHigh, icon: '🏍️', iconName: 'general' };
 }
 
 const CATEGORY_IMAGES = {
@@ -124,7 +124,7 @@ function TourCard({ tour, isFavorite, onToggleFavorite, onPress }) {
                         <View style={styles.cardTopRow}>
                             {/* Kategori pill */}
                             <View style={[styles.categoryPill, { backgroundColor: cfg.bg }]}>
-                                <Text style={{ fontSize: 12 }}>{cfg.icon}</Text>
+                                <Icon name={cfg.iconName} size={12} color={cfg.color} />
                                 <Text style={[styles.categoryText, { color: cfg.color }]}>
                                     {kategori || 'Genel'}
                                 </Text>
@@ -136,7 +136,7 @@ function TourCard({ tour, isFavorite, onToggleFavorite, onPress }) {
                                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                                 style={styles.favButton}
                             >
-                                <Text style={{ fontSize: 18 }}>{isFavorite ? '❤️' : '🤍'}</Text>
+                                <Icon name={isFavorite ? 'heart' : 'heartOutline'} size={18} color={isFavorite ? '#F87171' : C.textSecondary} />
                             </TouchableOpacity>
                         </View>
 
@@ -149,7 +149,7 @@ function TourCard({ tour, isFavorite, onToggleFavorite, onPress }) {
                         {/* Rota */}
                         {rota ? (
                             <View style={styles.routeRow}>
-                                <Text style={{ fontSize: 12 }}>📍</Text>
+                                <Icon name="mapPin" size={12} color={C.textSecondary} />
                                 <Text style={styles.routeText} numberOfLines={1}>{rota}</Text>
                             </View>
                         ) : null}
@@ -164,7 +164,10 @@ function TourCard({ tour, isFavorite, onToggleFavorite, onPress }) {
                                 </Text>
                             </View>
                             <View style={styles.footerRight}>
-                                <Text style={styles.dateText}>📅 {dateStr}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                    <Icon name="calendar" size={11} color={C.textPrimary} />
+                                    <Text style={styles.dateText}>{dateStr}</Text>
+                                </View>
                             </View>
                         </View>
 
@@ -177,7 +180,7 @@ function TourCard({ tour, isFavorite, onToggleFavorite, onPress }) {
                             </View>
                             <Text style={styles.creatorText}>{olusturanKisi}</Text>
                             <View style={[styles.viewBadge]}>
-                                <Image source={require('../assets/eye.png')} style={styles.viewIcon} resizeMode="contain" />
+                                <Icon name="eye" size={14} color={C.textPrimary} />
                                 <Text style={styles.viewBadgeText}>{viewCount || 0}</Text>
                             </View>
                         </View>
@@ -210,7 +213,7 @@ function CategoryFilter({ selected, onSelect }) {
                             isSelected && { backgroundColor: cfg.color, borderColor: cfg.color },
                         ]}
                     >
-                        {item !== 'Tümü' && <Text style={{ fontSize: 12 }}>{cfg.icon}</Text>}
+                        {item !== 'Tümü' && <Icon name={cfg.iconName} size={12} color={cfg.color} />}
                         <Text style={[styles.filterChipText, isSelected && { color: '#FFF', fontWeight: '700' }]}>
                             {item}
                         </Text>
@@ -223,6 +226,7 @@ function CategoryFilter({ selected, onSelect }) {
 
 // ─── Ana Ekran ────────────────────────────────────────────────────────────────
 export default function HomeScreen({ navigation }) {
+    const alert = useAlert();
     const [tours, setTours] = useState([]);
     const [filteredTours, setFilteredTours] = useState([]);
     const [favorites, setFavorites] = useState(new Set());
@@ -257,7 +261,7 @@ export default function HomeScreen({ navigation }) {
             setTours(res.data);
             setFilteredTours(res.data);
         } catch (e) {
-            Alert.alert('Bağlantı Hatası', 'Turlar yüklenemedi. Sunucunun çalıştığından emin ol.');
+            alert.show({ icon: 'error', title: 'Bağlantı Hatası', message: 'Turlar yüklenemedi. Sunucunun çalıştığından emin ol.' });
         }
     };
 
@@ -298,7 +302,7 @@ export default function HomeScreen({ navigation }) {
 
     const handleToggleFavorite = async (tour) => {
         if (!username) {
-            Alert.alert('Giriş Gerekli', 'Favorilere eklemek için giriş yapman gerekiyor.');
+            alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Favorilere eklemek için giriş yapman gerekiyor.' });
             return;
         }
         const wasInFav = favorites.has(tour.Id || tour.id);
@@ -339,7 +343,7 @@ export default function HomeScreen({ navigation }) {
 
             {/* Arama */}
             <View style={styles.searchWrapper}>
-                <Text style={styles.searchIcon}>🔍</Text>
+                <View style={styles.searchIcon}><Icon name="search" size={16} color={C.textSecondary} /></View>
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Tur, rota veya sürücü ara..."
@@ -350,7 +354,7 @@ export default function HomeScreen({ navigation }) {
                 />
                 {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
-                        <Text style={styles.clearIcon}>✕</Text>
+                        <View style={styles.clearIcon}><Icon name="close" size={16} color={C.textSecondary} /></View>
                     </TouchableOpacity>
                 )}
             </View>
@@ -367,7 +371,7 @@ export default function HomeScreen({ navigation }) {
 
     const renderEmpty = () => (
         <View style={styles.emptyContainer}>
-            <Text style={styles.emptyEmoji}>🏍️</Text>
+            <Icon name="motorcycle" size={56} color={C.textMuted} />
             <Text style={styles.emptyTitle}>Tur Bulunamadı</Text>
             <Text style={styles.emptySubtitle}>
                 {searchQuery || selectedCategory !== 'Tümü'
@@ -422,14 +426,14 @@ export default function HomeScreen({ navigation }) {
                 style={styles.fab}
                 onPress={() => {
                     if (!username) {
-                        Alert.alert('Giriş Gerekli', 'Tur eklemek için önce giriş yapman gerekiyor.');
+                        alert.show({ icon: 'warning', title: 'Giriş Gerekli', message: 'Tur eklemek için önce giriş yapman gerekiyor.' });
                         return;
                     }
                     navigation.navigate('CreateTour');
                 }}
                 activeOpacity={0.85}
             >
-                <Text style={styles.fabIcon}>+</Text>
+                <Icon name="add" size={22} color="#FFF" />
                 <Text style={styles.fabLabel}>Tur Ekle</Text>
             </TouchableOpacity>
         </SafeAreaView>
@@ -489,14 +493,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         marginBottom: 16,
     },
-    searchIcon: { fontSize: 16, marginRight: 10 },
+    searchIcon: { marginRight: 10 },
     searchInput: {
         flex: 1,
         color: C.textPrimary,
         fontSize: 15,
         paddingVertical: 13,
     },
-    clearIcon: { color: C.textSecondary, fontSize: 16, paddingLeft: 8 },
+    clearIcon: { paddingLeft: 8 },
 
     // Filtre
     filterList: { paddingBottom: 12, gap: 8 },
@@ -624,7 +628,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
     },
-    viewIcon: { width: 14, height: 14, tintColor: C.textPrimary },
+    // viewIcon style no longer needed (replaced by Icon component)
     viewBadgeText: { color: C.textPrimary, fontSize: 11, fontWeight: '600' },
 
     // Yükleme
