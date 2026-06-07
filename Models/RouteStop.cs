@@ -4,9 +4,9 @@
     {
         public int Id { get; set; }
         public int TourId { get; set; }
-        public string StopName { get; set; }
-        public string Description { get; set; }
+        public required string StopName { get; set; }
+        public string? Description { get; set; }
         public int OrderIndex { get; set; }
-        public string Time { get; set; }
+        public string? Time { get; set; }
     }
 }

@@ -4,14 +4,14 @@ namespace MotoRota.Models.DTOs
 {
     public class RegisterDto
     {
-        [Required(ErrorMessage = "Kullanıcı adı zorunludur")]
-        public string Username { get; set; }
+        [Required(ErrorMessage = "Kullanici adi zorunludur")]
+        public required string Username { get; set; }
 
-        [Required(ErrorMessage = "E-posta alanı zorunludur")]
-        [EmailAddress(ErrorMessage = "Geçerli bir e-posta adresi girin")]
-        public string Email { get; set; }
+        [Required(ErrorMessage = "E-posta alani zorunludur")]
+        [EmailAddress(ErrorMessage = "Gecerli bir e-posta adresi girin")]
+        public required string Email { get; set; }
 
-        [Required(ErrorMessage = "Şifre alanı zorunludur")]
-        public string Password { get; set; }
+        [Required(ErrorMessage = "Sifre alani zorunludur")]
+        public required string Password { get; set; }
     }
 }

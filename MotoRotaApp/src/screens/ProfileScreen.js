@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View, Text, TouchableOpacity, StyleSheet, SafeAreaView,
-    StatusBar, ScrollView, FlatList, ActivityIndicator,
+    StatusBar, ScrollView, ActivityIndicator, TextInput
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { toursAPI, participationsAPI, favoritesAPI, followsAPI } from '../services/api';
+import { toursAPI, participationsAPI, favoritesAPI, followsAPI, emergencyAPI, notificationsAPI } from '../services/api';
 import { useAlert } from '../components/CustomAlert';
 import Icon from '../components/Icons';
+import { MiniTourCard } from './ActivitiesScreen';
 
 const C = {
     bg: '#0A0A0F', surface: '#13131A', surfaceHigh: '#1C1C28',
@@ -15,8 +16,6 @@ const C = {
     green: '#34D399', greenDim: '#34D39920', purple: '#A78BFA', purpleDim: '#A78BFA20',
     blue: '#60A5FA', blueDim: '#60A5FA20', yellow: '#FBBF24', red: '#F87171', redDim: '#F8717120',
 };
-
-import { MiniTourCard } from './ActivitiesScreen';
 
 export default function ProfileScreen({ navigation }) {
     const alert = useAlert();
@@ -29,6 +28,11 @@ export default function ProfileScreen({ navigation }) {
     const [following, setFollowing] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [emergencyInfo, setEmergencyInfo] = useState(null);
+    const [showEmergency, setShowEmergency] = useState(false);
+    const [emergencyForm, setEmergencyForm] = useState({ bloodType: '', contactName: '', contactPhone: '', notes: '' });
+    const [isSavingEmergency, setIsSavingEmergency] = useState(false);
+    const [unreadNotifCount, setUnreadNotifCount] = useState(0);
 
     useEffect(() => {
         init();
@@ -46,24 +50,44 @@ export default function ProfileScreen({ navigation }) {
         setIsAdmin(role === 'Admin');
         if (uname) {
             try {
-                const [myRes, joinRes, favRes, followStatsRes, allToursRes] = await Promise.all([
+                const [myRes, joinRes, favRes, followStatsRes, allToursRes, emergencyRes, notifRes] = await Promise.all([
                     toursAPI.getMyCreated(uname),
                     participationsAPI.getMyParticipations(uname),
                     favoritesAPI.getMyFavorites(uname),
                     followsAPI.getStats(uname),
                     toursAPI.getAll(),
+                    emergencyAPI.getInfo(uname).catch(() => null),
+                    notificationsAPI.getMyNotifications(uname).catch(() => null),
                 ]);
                 setMyToursCount(myRes.data?.length || 0);
                 setJoinedToursCount(joinRes.data?.length || 0);
                 
-                // Favori tur ID'lerini çekip tüm turlar listesiyle eşleştiriyoruz.
-                // Böylece kategori, rota, tarih gibi tüm detaylar yan kartta tam görünecektir.
                 const favIds = new Set(favRes.data?.map(f => f.tourId || f.TourId) || []);
                 const filteredFavs = (allToursRes.data || []).filter(t => favIds.has(t.Id || t.id));
                 
                 setFavTours(filteredFavs);
                 setFollowers(followStatsRes.data?.followers ?? 0);
                 setFollowing(followStatsRes.data?.following ?? 0);
+
+                if (emergencyRes && emergencyRes.data) {
+                    setEmergencyInfo(emergencyRes.data);
+                    setEmergencyForm({
+                        bloodType: emergencyRes.data.bloodType || emergencyRes.data.BloodType || '',
+                        contactName: emergencyRes.data.emergencyContactName || emergencyRes.data.EmergencyContactName || '',
+                        contactPhone: emergencyRes.data.emergencyContactPhone || emergencyRes.data.EmergencyContactPhone || '',
+                        notes: emergencyRes.data.notes || emergencyRes.data.Notes || '',
+                    });
+                } else {
+                    setEmergencyInfo(null);
+                    setEmergencyForm({ bloodType: '', contactName: '', contactPhone: '', notes: '' });
+                }
+
+                if (notifRes && notifRes.data) {
+                    const unread = notifRes.data.filter(n => !(n.isRead || n.IsRead)).length;
+                    setUnreadNotifCount(unread);
+                } else {
+                    setUnreadNotifCount(0);
+                }
             } catch (_) {}
         }
         setIsLoading(false);
@@ -77,7 +101,7 @@ export default function ProfileScreen({ navigation }) {
             buttons: [
                 { text: 'İptal', style: 'cancel' },
                 { text: 'Çıkış Yap', style: 'destructive', onPress: async () => {
-                    await AsyncStorage.multiRemove(['userToken', 'username', 'userEmail']);
+                    await AsyncStorage.multiRemove(['userToken', 'username', 'userEmail', 'userRole']);
                     navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
                 }},
             ],
@@ -88,7 +112,35 @@ export default function ProfileScreen({ navigation }) {
         if (tourId) navigation.navigate('TourDetail', { tourId });
     };
 
-
+    const handleSaveEmergency = async () => {
+        if (!username) return;
+        setIsSavingEmergency(true);
+        try {
+            const payload = {
+                username: username,
+                bloodType: emergencyForm.bloodType.trim(),
+                emergencyContactName: emergencyForm.contactName.trim(),
+                emergencyContactPhone: emergencyForm.contactPhone.trim(),
+                notes: emergencyForm.notes.trim()
+            };
+            const res = await emergencyAPI.saveInfo(payload);
+            setEmergencyInfo(res.data);
+            alert.show({
+                icon: 'success',
+                title: 'Başarılı',
+                message: 'Acil durum bilgileri başarıyla güncellendi.',
+            });
+            setShowEmergency(false);
+        } catch (_) {
+            alert.show({
+                icon: 'error',
+                title: 'Hata',
+                message: 'Acil durum bilgileri kaydedilemedi.',
+            });
+        } finally {
+            setIsSavingEmergency(false);
+        }
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -155,6 +207,21 @@ export default function ProfileScreen({ navigation }) {
                     <Text style={styles.garageBtnArrow}>›</Text>
                 </TouchableOpacity>
 
+                {/* Bildirimler Butonu */}
+                <TouchableOpacity style={styles.garageBtn} onPress={() => navigation.navigate('Notifications')}>
+                    <Icon name="bell" size={28} color={C.orange} />
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.garageBtnTitle}>Bildirimlerim</Text>
+                        <Text style={styles.garageBtnSub}>Turlarıma katılım bildirimleri</Text>
+                    </View>
+                    {unreadNotifCount > 0 && (
+                        <View style={styles.notifBadge}>
+                            <Text style={styles.notifBadgeText}>{unreadNotifCount}</Text>
+                        </View>
+                    )}
+                    <Text style={styles.garageBtnArrow}>›</Text>
+                </TouchableOpacity>
+
                 {/* Admin Paneli Butonu */}
                 {isAdmin && (
                     <TouchableOpacity style={styles.adminBtn} onPress={() => navigation.navigate('AdminComments')}>
@@ -168,6 +235,106 @@ export default function ProfileScreen({ navigation }) {
                         </View>
                         <Text style={styles.garageBtnArrow}>›</Text>
                     </TouchableOpacity>
+                )}
+
+                {/* Acil Durum Butonu */}
+                <TouchableOpacity style={[styles.emergencyBtn, showEmergency && styles.emergencyBtnActive]} onPress={() => setShowEmergency(!showEmergency)}>
+                    <Icon name="warning" size={28} color={C.red} />
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.emergencyBtnTitle}>Acil Durum Bilgilerim</Text>
+                        <Text style={styles.emergencyBtnSub}>Sağlık ve acil iletişim kişisi</Text>
+                    </View>
+                    <Text style={[styles.emergencyBtnArrow, showEmergency && { transform: [{ rotate: '90deg' }] }]}>›</Text>
+                </TouchableOpacity>
+
+                {/* Acil Durum Kartı Formu */}
+                {showEmergency && (
+                    <View style={styles.emergencyFormCard}>
+                        <Text style={styles.formTitle}>Acil Durum Kartı</Text>
+                        
+                        <Text style={styles.formLabel}>Kan Grubu</Text>
+                        <TextInput
+                            style={styles.formInput}
+                            placeholder="Örn: 0 Rh+, A Rh-"
+                            placeholderTextColor={C.textMuted}
+                            value={emergencyForm.bloodType}
+                            onChangeText={txt => setEmergencyForm(prev => ({ ...prev, bloodType: txt }))}
+                        />
+
+                        <Text style={styles.formLabel}>Acil Durum Yakını Adı Soyadı</Text>
+                        <TextInput
+                            style={styles.formInput}
+                            placeholder="Örn: Ahmet Yılmaz"
+                            placeholderTextColor={C.textMuted}
+                            value={emergencyForm.contactName}
+                            onChangeText={txt => setEmergencyForm(prev => ({ ...prev, contactName: txt }))}
+                        />
+
+                        <Text style={styles.formLabel}>Acil Durum Yakını Telefonu</Text>
+                        <TextInput
+                            style={styles.formInput}
+                            placeholder="Örn: 0555..."
+                            placeholderTextColor={C.textMuted}
+                            keyboardType="phone-pad"
+                            value={emergencyForm.contactPhone}
+                            onChangeText={txt => setEmergencyForm(prev => ({ ...prev, contactPhone: txt }))}
+                        />
+
+                        <Text style={styles.formLabel}>Önemli Sağlık Notları / Alerjiler</Text>
+                        <TextInput
+                            style={[styles.formInput, { height: 80, textAlignVertical: 'top' }]}
+                            placeholder="Örn: Penisilin alerjisi, kronik tansiyon..."
+                            placeholderTextColor={C.textMuted}
+                            multiline
+                            numberOfLines={3}
+                            value={emergencyForm.notes}
+                            onChangeText={txt => setEmergencyForm(prev => ({ ...prev, notes: txt }))}
+                        />
+
+                        <TouchableOpacity
+                            style={[styles.saveBtn, isSavingEmergency && { opacity: 0.6 }]}
+                            onPress={handleSaveEmergency}
+                            disabled={isSavingEmergency}
+                        >
+                            {isSavingEmergency ? (
+                                <ActivityIndicator color="#FFF" size="small" />
+                            ) : (
+                                <Text style={styles.saveBtnText}>Bilgileri Kaydet</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
+                )}
+
+                {/* Acil Durum Özet Görünümü */}
+                {!showEmergency && emergencyInfo && (
+                    <View style={styles.emergencySummaryCard}>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>🩸 Kan Grubu:</Text>
+                            <Text style={[styles.summaryValue, { color: C.red, fontWeight: '800' }]}>
+                                {emergencyInfo.bloodType || emergencyInfo.BloodType || 'Belirtilmemiş'}
+                            </Text>
+                        </View>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>👤 Yakın Kişi:</Text>
+                            <Text style={styles.summaryValue}>
+                                {emergencyInfo.emergencyContactName || emergencyInfo.EmergencyContactName || 'Belirtilmemiş'}
+                            </Text>
+                        </View>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>📞 Yakın Tel:</Text>
+                            <Text style={styles.summaryValue}>
+                                {emergencyInfo.emergencyContactPhone || emergencyInfo.EmergencyContactPhone || 'Belirtilmemiş'}
+                            </Text>
+                        </View>
+                        {(emergencyInfo.notes || emergencyInfo.Notes) ? (
+                            <View style={[styles.summaryRow, { flexDirection: 'column', alignItems: 'flex-start', marginTop: 4 }]}>
+                                <Text style={styles.summaryLabel}>📝 Önemli Sağlık Notları:</Text>
+                                <Text style={[styles.summaryValue, { marginTop: 4, fontStyle: 'italic', color: C.textSecondary }]}>
+                                    {emergencyInfo.notes || emergencyInfo.Notes}
+                                </Text>
+                            </View>
+                        ) : null}
+                    </View>
                 )}
 
                 <View style={styles.sectionHeader}>
@@ -218,22 +385,40 @@ const styles = StyleSheet.create({
     statLabel: { color: C.textMuted, fontSize: 11, fontWeight: '600', marginTop: 2 },
     statDivider: { width: 1, height: 32, backgroundColor: C.border },
 
-    garageBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, margin: 16, padding: 16, gap: 14, shadowColor: C.orange, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
-    garageBtnIcon: { fontSize: 28 },
+    garageBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, marginHorizontal: 16, marginTop: 16, padding: 16, gap: 14, shadowColor: C.orange, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
     garageBtnTitle: { color: C.textPrimary, fontSize: 16, fontWeight: '700' },
     garageBtnSub: { color: C.textSecondary, fontSize: 12, marginTop: 2 },
     garageBtnArrow: { color: C.orange, fontSize: 24, fontWeight: '300' },
 
-    adminBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: '#FF6B3540', marginHorizontal: 16, marginTop: 0, marginBottom: 8, padding: 16, gap: 14, shadowColor: C.orange, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4 },
-    adminBtnIcon: { fontSize: 28 },
+    adminBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: '#FF6B3540', marginHorizontal: 16, marginTop: 12, padding: 16, gap: 14, shadowColor: C.orange, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4 },
     adminBtnTitle: { color: C.textPrimary, fontSize: 16, fontWeight: '700' },
     adminBtnSub: { color: C.textSecondary, fontSize: 12, marginTop: 2 },
     adminBadge: { backgroundColor: '#FF6B3520', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4, borderWidth: 1, borderColor: '#FF6B3540' },
     adminBadgeText: { color: C.orange, fontSize: 11, fontWeight: '700' },
 
-    sectionHeader: { paddingHorizontal: 16, marginBottom: 12, marginTop: 8 },
+    emergencyBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, marginHorizontal: 16, marginTop: 12, padding: 16, gap: 14, shadowColor: C.red, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4 },
+    emergencyBtnActive: { borderColor: C.red },
+    emergencyBtnTitle: { color: C.textPrimary, fontSize: 16, fontWeight: '700' },
+    emergencyBtnSub: { color: C.textSecondary, fontSize: 12, marginTop: 2 },
+    emergencyBtnArrow: { color: C.red, fontSize: 24, fontWeight: '300' },
+
+    emergencyFormCard: { backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.red + '40', marginHorizontal: 16, marginTop: 8, padding: 16 },
+    formTitle: { color: C.red, fontSize: 16, fontWeight: '800', marginBottom: 14 },
+    formLabel: { color: C.textSecondary, fontSize: 12, fontWeight: '600', marginBottom: 6 },
+    formInput: { backgroundColor: C.surfaceHigh, color: C.textPrimary, borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, marginBottom: 14 },
+    saveBtn: { backgroundColor: C.red, borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 6 },
+    saveBtnText: { color: '#FFF', fontSize: 14, fontWeight: '700' },
+
+    emergencySummaryCard: { backgroundColor: C.surfaceHigh, borderRadius: 16, borderWidth: 1, borderColor: C.border, marginHorizontal: 16, marginTop: 8, padding: 16 },
+    summaryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+    summaryLabel: { color: C.textSecondary, fontSize: 13, fontWeight: '600' },
+    summaryValue: { color: C.textPrimary, fontSize: 14, fontWeight: '700' },
+
+    sectionHeader: { paddingHorizontal: 16, marginBottom: 12, marginTop: 24 },
     sectionTitle: { color: C.textPrimary, fontSize: 16, fontWeight: '700' },
 
     emptyBox: { alignItems: 'center', paddingTop: 20, paddingHorizontal: 32 },
     emptyText: { color: C.textSecondary, fontSize: 15, textAlign: 'center' },
+    notifBadge: { backgroundColor: C.red, borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6, marginRight: 4 },
+    notifBadgeText: { color: '#FFF', fontSize: 11, fontWeight: '800' },
 });

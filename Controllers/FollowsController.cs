@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MotoRota.Data;
@@ -12,12 +12,18 @@ namespace MotoRota.Controllers
     public class FollowsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+
         public FollowsController(ApplicationDbContext context) => _context = context;
 
+        /// <summary>Takip et / takipten çık (toggle)</summary>
         [HttpPost("toggle")]
         public async Task<IActionResult> ToggleFollow([FromBody] UserFollow follow)
         {
-            var existing = await _context.UserFollows.FirstOrDefaultAsync(f => f.FollowerUsername == follow.FollowerUsername && f.FollowingUsername == follow.FollowingUsername);
+            var existing = await _context.UserFollows
+                .FirstOrDefaultAsync(f =>
+                    f.FollowerUsername == follow.FollowerUsername &&
+                    f.FollowingUsername == follow.FollowingUsername);
+
             if (existing != null)
             {
                 _context.UserFollows.Remove(existing);
@@ -30,6 +36,7 @@ namespace MotoRota.Controllers
             return Ok(new { status = "followed" });
         }
 
+        /// <summary>Takipçi ve takip edilen sayısı</summary>
         [HttpGet("stats/{username}")]
         public async Task<IActionResult> GetStats(string username)
         {
@@ -38,10 +45,12 @@ namespace MotoRota.Controllers
             return Ok(new { followers, following });
         }
 
+        /// <summary>Takip durumunu kontrol et</summary>
         [HttpGet("check")]
-        public IActionResult CheckFollow(string follower, string followed)
+        public async Task<IActionResult> CheckFollow(string follower, string followed)
         {
-            var exists = _context.UserFollows.Any(f => f.FollowerUsername == follower && f.FollowingUsername == followed);
+            var exists = await _context.UserFollows
+                .AnyAsync(f => f.FollowerUsername == follower && f.FollowingUsername == followed);
             return Ok(new { isFollowing = exists });
         }
     }

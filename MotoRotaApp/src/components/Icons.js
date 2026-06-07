@@ -51,6 +51,7 @@ const ICON_MAP = {
     pending:       { emoji: '⏳', lib: MaterialCommunityIcons, name: 'timer-sand' },
     garage:        { emoji: '🏍️', lib: MaterialCommunityIcons, name: 'garage-variant' },
     logout:        { emoji: '🚪', lib: MaterialCommunityIcons, name: 'logout' },
+    bell:          { emoji: '🔔', lib: MaterialCommunityIcons, name: 'bell-outline' },
     party:         { emoji: '🎉', lib: MaterialCommunityIcons, name: 'party-popper' },
     refresh:       { emoji: '🔄', lib: MaterialCommunityIcons, name: 'refresh' },
     mail:          { emoji: '✉️', lib: MaterialCommunityIcons, name: 'send' },

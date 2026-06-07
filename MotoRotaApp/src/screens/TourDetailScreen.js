@@ -347,9 +347,20 @@ export default function TourDetailScreen({ route, navigation }) {
         try {
             await commentsAPI.post(tourId, username, commentText.trim());
             setCommentText('');
-            setCommentSent(true);
+            if (isAdmin) {
+                alert.show({
+                    icon: 'success',
+                    title: 'Başarılı',
+                    message: 'Yorumunuz başarıyla eklendi.',
+                });
+                // Yorumları hemen yenileyelim
+                const commentsRes = await commentsAPI.getByTour(tourId);
+                setComments(commentsRes.data || []);
+            } else {
+                setCommentSent(true);
+            }
         } catch (e) {
-            const msg = e.response?.data;
+            const msg = e.response?.data?.message || e.response?.data;
             if (typeof msg === 'string') alert.show({ icon: 'error', title: 'Hata', message: msg });
             else alert.show({ icon: 'error', title: 'Hata', message: 'Yorum gönderilemedi.' });
         } finally {

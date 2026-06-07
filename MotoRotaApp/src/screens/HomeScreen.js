@@ -243,7 +243,7 @@ export default function HomeScreen({ navigation }) {
 
         // Ekrana her dönüşte (tur eklendikten sonra) listeyi yenile
         const unsubscribe = navigation.addListener('focus', () => {
-            fetchTours();
+            initData();
         });
         return unsubscribe;
     }, [navigation]);

@@ -3,7 +3,7 @@
     public class UserFollow
     {
         public int Id { get; set; }
-        public string FollowerUsername { get; set; }
-        public string FollowingUsername { get; set; }
+        public required string FollowerUsername { get; set; }
+        public required string FollowingUsername { get; set; }
     }
 }

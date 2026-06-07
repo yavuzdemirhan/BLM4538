@@ -13,6 +13,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import GarageScreen from './src/screens/GarageScreen';
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
 import AdminCommentsScreen from './src/screens/AdminCommentsScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AlertProvider } from './src/components/CustomAlert';
@@ -27,6 +28,7 @@ export type RootStackParamList = {
     CreateTour: undefined;
     Garage: undefined;
     AdminComments: undefined;
+    Notifications: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -117,6 +119,7 @@ export default function App() {
                         <Stack.Screen name="CreateTour" component={CreateTourScreen} />
                         <Stack.Screen name="Garage" component={GarageScreen} />
                         <Stack.Screen name="AdminComments" component={AdminCommentsScreen} />
+                        <Stack.Screen name="Notifications" component={NotificationsScreen} />
                     </Stack.Navigator>
                 </NavigationContainer>
             </AlertProvider>

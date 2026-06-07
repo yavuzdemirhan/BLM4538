@@ -170,5 +170,27 @@ export const followsAPI = {
         apiClient.get('/Follows/check', { params: { follower, followed } }),
 };
 
+// ─── Emergency ────────────────────────────────────────────────────────────────
+export const emergencyAPI = {
+    /** Acil durum bilgilerini getir */
+    getInfo: (username) =>
+        apiClient.get(`/Emergency/${username}`),
+
+    /** Acil durum bilgilerini kaydet */
+    saveInfo: (info) =>
+        apiClient.post('/Emergency', info),
+};
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+export const notificationsAPI = {
+    /** Kullanıcının bildirimlerini getir */
+    getMyNotifications: (username) =>
+        apiClient.get(`/Notifications/${username}`),
+
+    /** Bildirimi okundu olarak işaretle */
+    markAsRead: (id) =>
+        apiClient.post(`/Notifications/mark-read/${id}`),
+};
+
 export default apiClient;
 
